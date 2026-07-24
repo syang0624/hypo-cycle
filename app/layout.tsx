@@ -6,8 +6,8 @@ import ConvexClientProvider from "./ConvexClientProvider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "HookLoop",
-  description: "Autonomous paid-ad experimentation agent for startups",
+  title: "HypoCycle",
+  description: "Autonomous experimentation platform that gives AI agents a scientific method",
 };
 
 export default function RootLayout({

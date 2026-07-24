@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-export default function AgentReasoningPanel({
+export default function RationalePanel({
   text,
 }: {
   title: string;

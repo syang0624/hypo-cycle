@@ -22,7 +22,7 @@ export default function LaunchPage({
 
   useEffect(() => {
     if (step >= STEPS.length) {
-      router.replace(`/dashboard/${params.batchId}`);
+      router.replace(`/cycles/${params.batchId}`);
       return;
     }
 
@@ -52,7 +52,7 @@ export default function LaunchPage({
       <div className="bg-card rounded-bento shadow-bento p-10 md:p-14 w-full max-w-lg text-center">
         {/* Animated logo */}
         <h1 className="font-display text-3xl font-bold tracking-tight text-foreground mb-8">
-          Hook<span className="text-primary">Loop</span>
+          Hypo<span className="text-primary">Cycle</span>
         </h1>
 
         {/* Spinner ring */}
@@ -110,7 +110,7 @@ export default function LaunchPage({
         </div>
 
         <p className="text-[12px] text-foreground/30 mt-4">
-          Batch {params.batchId}
+          Cycle {params.batchId}
         </p>
       </div>
     </div>

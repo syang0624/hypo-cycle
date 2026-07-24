@@ -19,11 +19,11 @@ import WeeklyReport from "./WeeklyReport";
  */
 
 const PHASE_TEXT: Record<string, string> = {
-  strategizing: "Strategist is forming this week's hypotheses…",
-  generating: "Generating new reels from last week's learnings…",
+  strategizing: "Forming this week's falsifiable hypotheses…",
+  generating: "Building treatment reels from last week's evidence…",
   generating_video: "Producing the reels…",
-  simulating: "Running the 7-day simulation…",
-  analyzing: "Analyzing what worked…",
+  simulating: "Running the 7-day simulated campaign…",
+  analyzing: "Evaluating the evidence…",
 };
 
 export default function WeekSection({
@@ -43,7 +43,7 @@ export default function WeekSection({
   const variants = useQuery(api.variants.listByBatch, { batchId }) as Variant[] | undefined;
   const metrics = useQuery(api.metrics.liveMetrics, { batchId }) as Metric[] | undefined;
   const status = useQuery(api.experiments.getStatus, { batchId });
-  const reasoning = useQuery(api.agents.reasoningByBatch, { batchId });
+  const rationale = useQuery(api.agents.reasoningByBatch, { batchId });
   const allocations = useQuery(api.simulator.allocationsByBatch, { batchId });
 
   // Scroll the active (newest) week into view when it mounts, so clicking
@@ -54,7 +54,7 @@ export default function WeekSection({
     if (isActive) ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [isActive]);
 
-  const analystData = reasoning?.find((r) => r.agent === "analyst")?.data;
+  const analystData = rationale?.find((r) => r.agent === "analyst")?.data;
   const parsedAnalyst: AnalystData | null = (() => {
     if (!analystData) return null;
     try {
@@ -115,6 +115,9 @@ export default function WeekSection({
         </div>
         {metricsStarted && (
           <div className="flex items-center gap-5">
+            <span className="rounded-full bg-amber-500/10 text-amber-600 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
+              Simulated
+            </span>
             <Metric label="CPC" value={`$${avgCpc.toFixed(2)}`} delta={cpcDelta} />
             <Metric label="CAC" value={`$${avgCac.toFixed(2)}`} />
           </div>

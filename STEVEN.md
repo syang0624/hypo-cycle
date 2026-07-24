@@ -4,9 +4,10 @@ Read `PRD.md` first — it supersedes the old HookLoop scope. This file is your
 work plan for migrating the frontend from HookLoop to HypoCycle. Work on the
 `steven` branch; push every ~30 minutes.
 
-**Status: Migration not started.** The "Legacy" section at the bottom describes
-the shipped HookLoop UI, which keeps working during migration (PRD §19.1: keep
-old routes readable or provide redirects).
+**Status: Phase 0 frontend done (2026-07-24)** — see checkboxes below. Waiting
+on Nori's Phase 0 backend to swap the legacy queries. The "Legacy" section at
+the bottom describes the shipped HookLoop UI, which keeps working during
+migration (PRD §19.1: keep old routes readable or provide redirects).
 
 ---
 
@@ -43,22 +44,32 @@ Nori is generalizing the schema (product→program, batch→cycle, ad variant→
 generic variant). Your Phase 0 job: the existing demo UI runs on the new
 contract with zero feature regression.
 
-- [ ] **S0.1 — Rename.** HookLoop → HypoCycle in every user-facing surface
-      (layout metadata, landing page, copy, README screenshots).
-- [ ] **S0.2 — Types.** Rewrite `lib/types.ts` around the PRD §11 domain model:
-      Program, Cycle, Hypothesis (with falsification condition), Plan, Variant,
-      Execution, Evaluation, Finding, Approval, AuditEvent. Ad-specific DNA
-      fields live in a typed `variant.config` for the ad template.
-- [ ] **S0.3 — Re-route.** `setup → /programs/new`, `dashboard/[batchId] →
-      /cycles/[cycleId]`, keep old routes as redirects. Swap legacy queries
-      for the new contract (`cycles.getStatus`, `executions.listByCycle`, …)
-      screen by screen as Nori lands them.
-- [ ] **S0.4 — Language sweep (PRD §19.1).** "Agent reasoning" → **rationale /
-      activity / evidence**. Every simulated metric visibly labeled
-      **Simulated** — never presentable as real campaign results (PRD §18.1).
-      Rename `AgentReasoningPanel` → `RationalePanel`.
+- [x] **S0.1 — Rename.** HookLoop → HypoCycle in layout metadata, landing,
+      program setup, launch, dashboard, package.json. Landing copy reframed
+      around falsifiable hypotheses + evidence; agent card renamed to
+      Hypothesis/Treatment/Evaluation. **Left for later:** `public/pitch.html`
+      is a HookLoop-era pitch deck that needs a content rewrite, not a
+      find/replace.
+- [x] **S0.2 — Types.** `lib/types.ts` now has the PRD §11 domain model
+      (Program, Cycle, FalsifiableHypothesis, ExperimentPlan,
+      ExperimentVariant with `config: AdCreativeConfig | …`, Execution,
+      Evaluation, Finding, Approval, AuditEvent, CycleState) as the target
+      contract shapes, with the legacy HookLoop shapes kept in a marked
+      section until each screen migrates off the old queries.
+- [x] **S0.3 — Re-route.** `/programs/new` and `/cycles/[cycleId]` are the
+      canonical routes; `/setup` and `/dashboard/[batchId]` redirect. Launch
+      interstitial now lands on `/cycles/…`. **Still open:** swap legacy
+      queries for the new contract (`cycles.getStatus`,
+      `executions.listByCycle`, …) screen by screen as Nori lands them.
+- [x] **S0.4 — Language sweep (PRD §19.1).** `AgentReasoningPanel` →
+      `RationalePanel` (component was unused; kept for reuse). `reasoning`
+      locals → `rationale` (the `api.agents.reasoningByBatch` query name is
+      Nori's to rename). Phase copy rewritten around hypotheses/evidence.
+      **Simulated** badges on the cycle dashboard header, each week section's
+      metrics, and the CPC-by-week chart caption.
 
-**Exit:** existing ad demo works end to end on the new model and vocabulary.
+**Exit:** existing ad demo works end to end on the new model and vocabulary —
+`npm run build` passes with the new routes.
 
 ## Phase 1 — The ten MVP screens (PRD §17)
 

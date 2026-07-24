@@ -10,15 +10,16 @@ export default function Home() {
           <div className="col-span-4 md:col-span-2 row-span-2 bg-card rounded-bento shadow-bento p-8 md:p-10 flex flex-col justify-between min-h-[320px]">
             <div>
               <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
-                Hook<span className="text-primary">Loop</span>
+                Hypo<span className="text-primary">Cycle</span>
               </h1>
               <p className="mt-4 text-[15px] text-foreground/60 leading-relaxed max-w-sm">
-                The autonomous ad experimentation agent. Input your product, get
-                hypotheses, variants, simulated campaigns, and clear attribution.
+                The experimentation platform that gives AI agents a scientific
+                method. Falsifiable hypotheses, controlled variants, simulated
+                campaigns, and evidence-backed decisions.
               </p>
             </div>
             <Link
-              href="/setup"
+              href="/programs/new"
               className="mt-8 inline-flex items-center justify-center rounded-[14px] bg-primary text-white px-7 py-3.5 text-[15px] font-semibold hover:bg-primary/90 transition-all duration-200 w-fit shadow-bento"
             >
               Start Experiment
@@ -30,7 +31,7 @@ export default function Home() {
             <span className="text-[13px] font-semibold text-foreground/40 uppercase tracking-wide">Agents</span>
             <div>
               <p className="text-4xl font-bold font-display text-foreground">3</p>
-              <p className="text-[13px] text-foreground/50 mt-1">Strategist, Generator, Analyst</p>
+              <p className="text-[13px] text-foreground/50 mt-1">Hypothesis, Treatment, Evaluation</p>
             </div>
           </div>
 
@@ -54,10 +55,10 @@ export default function Home() {
 
           {/* Loop description card — 1x1 */}
           <div className="col-span-2 md:col-span-1 bg-primary rounded-bento shadow-bento p-6 flex flex-col justify-between min-h-[150px]">
-            <span className="text-[13px] font-semibold text-white/60 uppercase tracking-wide">The Loop</span>
+            <span className="text-[13px] font-semibold text-white/60 uppercase tracking-wide">The Cycle</span>
             <div>
               <p className="text-white text-[14px] font-medium leading-snug">
-                Hypothesize. Generate. Simulate. Analyze. Repeat.
+                Hypothesize. Test. Evaluate. Decide. Repeat.
               </p>
             </div>
           </div>
