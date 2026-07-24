@@ -7,6 +7,12 @@
 **Previous product:** HookLoop  
 **Owner:** Product / Engineering
 
+> **Implementation note — July 24, 2026:** This document is a future product
+> vision. The current repository is a frontend-only HookLoop demo using static
+> campaign fixtures and bundled videos. Sandbox execution, the control plane,
+> integrations, authentication, persistence, and live agent orchestration
+> described below are not implemented.
+
 ## 1. Executive Summary
 
 HypoCycle is an autonomous experimentation platform that gives AI agents a scientific method.
@@ -438,7 +444,10 @@ The HypoCycle application owns:
 - Approval routing
 - Experiment memory
 
-The current Next.js and Convex application can remain the initial control plane, with the existing batch loop generalized into programs, cycles, plans, variants, executions, and evaluations.
+The current Next.js repository is only a presentation-layer prototype and must
+not be treated as a control plane. A future implementation may reuse its visual
+language and experiment narrative, but persistence, orchestration, policy,
+authorization, and auditability require a separately reviewed architecture.
 
 ### 13.2 Execution Plane
 

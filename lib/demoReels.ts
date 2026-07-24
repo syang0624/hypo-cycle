@@ -47,13 +47,11 @@ export type WeekMetrics = {
 };
 
 /**
- * Check if a local video file exists at runtime.
- * Returns the path if it exists, null otherwise.
+ * Build the public path for a bundled demo reel.
  */
-function reelPath(week: number, index: number): string | null {
-  // In the browser we can't check fs — just return the path and let
-  // the video element's onerror handle missing files
-  return `/reels/week${week}_reel${index}.mp4`;
+function reelPath(week: number, index: number): string {
+  // ReelCard falls back to a generated preview if a video fails to load.
+  return `/reels/week${week}_slot${index - 1}.mp4`;
 }
 
 export const DEMO_CAMPAIGN: DemoWeek[] = [

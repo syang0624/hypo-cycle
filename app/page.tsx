@@ -18,10 +18,10 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href="/setup"
+              href="/demo"
               className="mt-8 inline-flex items-center justify-center rounded-[14px] bg-primary text-white px-7 py-3.5 text-[15px] font-semibold hover:bg-primary/90 transition-all duration-200 w-fit shadow-bento"
             >
-              Start Experiment
+              Explore Demo
             </Link>
           </div>
 
@@ -38,8 +38,8 @@ export default function Home() {
           <div className="col-span-2 md:col-span-1 bg-card rounded-bento shadow-bento p-6 flex flex-col justify-between min-h-[150px]">
             <span className="text-[13px] font-semibold text-foreground/40 uppercase tracking-wide">Variants</span>
             <div>
-              <p className="text-4xl font-bold font-display text-foreground">8</p>
-              <p className="text-[13px] text-foreground/50 mt-1">Unique creative DNA combos</p>
+              <p className="text-4xl font-bold font-display text-foreground">9</p>
+              <p className="text-[13px] text-foreground/50 mt-1">Reels tested across 3 weeks</p>
             </div>
           </div>
 
@@ -47,8 +47,8 @@ export default function Home() {
           <div className="col-span-2 md:col-span-1 bg-card rounded-bento shadow-bento p-6 flex flex-col justify-between min-h-[150px]">
             <span className="text-[13px] font-semibold text-foreground/40 uppercase tracking-wide">Simulation</span>
             <div>
-              <p className="text-4xl font-bold font-display text-foreground">7</p>
-              <p className="text-[13px] text-foreground/50 mt-1">Day campaign with live bandit</p>
+              <p className="text-4xl font-bold font-display text-foreground">44%</p>
+              <p className="text-[13px] text-foreground/50 mt-1">CPC reduction in the demo</p>
             </div>
           </div>
 

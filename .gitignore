@@ -43,8 +43,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# convex local state
-.convex/
-
 # omc
 .omc/
+# Added by Braintrust Wizard
+.env.braintrust
+.braintrust.json
