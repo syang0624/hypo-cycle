@@ -10,6 +10,68 @@ the baseline we migrate from (PRD §19: evolve, don't discard).
 
 ---
 
+## Frontend status — read before touching the contract (Steven, 2026-07-24)
+
+Steven finished his Phase 0 (rename, re-route, language sweep), a full UI
+redesign, and a UX pass on the `steven` branch. **No new backend functions are
+needed** — but the frontend now leans on the legacy contract in specific ways
+you should know before renaming or changing anything:
+
+### Exact legacy surface the UI calls today
+
+```ts
+products.create(input)                     // → { productId }
+experiments.startBatch({ productId })      // → batchId; ALSO used to RETRY a failed week 1
+experiments.startNextBatch({ productId, priorBatchId })
+                                           // next week; ALSO used to RETRY a failed week N>1
+                                           //   with priorBatchId = week N-1's batchId
+experiments.getStatus({ batchId })         // { status, phase, progress, error, productId }
+experiments.weeksByProduct({ productId })  // ⚠ in active use but missing from the CLAUDE.md
+                                           //   legacy list — keep it alive
+variants.listByBatch / metrics.liveMetrics / hypotheses.listByBatch
+agents.reasoningByBatch / simulator.allocationsByBatch
+```
+
+Implications for you:
+
+1. **Phase names are load-bearing.** The launch console and dashboard map
+   `phase` ∈ {`strategizing`, `generating`, `generating_video`, `simulating`,
+   `analyzing`, `complete`} to UI states. Rename or add phases → tell Steven
+   in chat first.
+2. **`getStatus` returning `null` is treated as 404** ("cycle not found" page).
+   Returning `null` for a real-but-not-yet-written batch would show users a
+   404 flash — make sure a just-started batch has a status row immediately.
+3. **Retry calls must be safe.** A failed batch may trigger a second
+   `startBatch` for the same product, or a second `startNextBatch` from the
+   same prior batch. That creates a NEW batch (expected) — make sure nothing
+   breaks with multiple batches per product beyond the 3-week happy path, and
+   that `weeksByProduct` orders sanely when a failed week has a retried
+   sibling. This is the most likely place our assumptions diverge — worth a
+   quick e2e of the failure path.
+4. **The demo path fires `products.create` + `startBatch` back-to-back** with
+   `MOCK_PRODUCT` (one click, no form review). Validation errors thrown from
+   either mutation are now surfaced verbatim in the UI — make messages
+   human-readable.
+
+### Routes & naming (FYI)
+
+- Canonical routes are now `/programs/new` and `/cycles/[cycleId]` (the
+  cycleId IS the batchId until your Phase 0 lands); `/setup` and
+  `/dashboard/[batchId]` redirect.
+- UI language is rationale/evidence, never "reasoning"; all simulated metrics
+  carry amber **Simulated** badges. When you rename `agents.reasoningByBatch`
+  → `rationaleByCycle` (or similar) in Phase 0, the frontend swap is mechanical.
+- `lib/types.ts` (Steven's file, you read) now contains the **target PRD §11
+  domain types** (`Program`, `Cycle`, `FalsifiableHypothesis`,
+  `ExperimentPlan`, `ExperimentVariant` with `config: AdCreativeConfig`,
+  `Execution`, `Evaluation`, `Finding`, `Approval`, `AuditEvent`,
+  `CycleState`) — treat these as the shapes the new contract queries should
+  return, and flag mismatches in chat rather than silently diverging.
+- `package.json` name changed to `hypo-cycle` (one line) — pull before adding
+  deps.
+
+---
+
 ## Your role
 
 You own the **control plane, execution plane, and every external integration**:
