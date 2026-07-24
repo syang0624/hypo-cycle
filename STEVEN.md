@@ -71,6 +71,22 @@ contract with zero feature regression.
 **Exit:** existing ad demo works end to end on the new model and vocabulary —
 `npm run build` passes with the new routes.
 
+## Design system (redesigned 2026-07-24)
+
+The iOS-style light bento theme is gone. New look: **dark instrument /
+mission-control** — hairline `border-line` panels on ink (`#0B0E14`), no drop
+shadows, violet brand (`#7C6CFF`), strict semantic colors (`good` emerald,
+`bad` red, `warn` amber = simulated, `info` cyan). Space Grotesk for display,
+JetBrains Mono for all data/ids/labels, Inter for body. Tokens live in
+`tailwind.config.ts` (`background/panel/inset/line/foreground/muted/primary/
+good/bad/warn/info`); legacy `card`/`bento` aliases kept for stragglers.
+
+Shared primitives in `components/ui.tsx`: `Logo`, `Panel` (tick + mono
+uppercase header), `Chip` (status dot + mono label), `SimBadge`, `Skeleton`
+(shimmer). Launch page is a fake provisioning console; dashboard has a sticky
+command bar. Use these primitives for all Phase 1 screens — don't invent new
+card styles per screen.
+
 ## Phase 1 — The ten MVP screens (PRD §17)
 
 Build order = demo-value order. Reuse legacy components where they map

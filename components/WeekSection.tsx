@@ -7,15 +7,16 @@ import type { Hypothesis, Variant, Metric, AnalystData } from "@/lib/types";
 import VariantCard from "./VariantCard";
 import HypothesisList from "./HypothesisList";
 import WeeklyReport from "./WeeklyReport";
+import { Chip } from "./ui";
 
 /**
  * One WEEK of the campaign = one batch. Renders that batch's own hypotheses, its
  * three distinct reels (with killed reels left visible + marked), a results
- * summary, and its weekly report once the Analyst is done. Each section owns its
- * own reactive queries keyed by its batchId, so a stack of WeekSections shows the
- * whole campaign accumulating week over week — past weeks frozen, the active week
- * streaming live. The point is the search for the best-performing reel; prior
- * weeks are not re-simulated.
+ * summary, and its weekly report once the evaluation is done. Each section owns
+ * its own reactive queries keyed by its batchId, so a stack of WeekSections
+ * shows the whole campaign accumulating week over week — past weeks frozen, the
+ * active week streaming live. The point is the search for the best-performing
+ * reel; prior weeks are not re-simulated.
  */
 
 const PHASE_TEXT: Record<string, string> = {
@@ -47,7 +48,7 @@ export default function WeekSection({
   const allocations = useQuery(api.simulator.allocationsByBatch, { batchId });
 
   // Scroll the active (newest) week into view when it mounts, so clicking
-  // "Run Next Week" brings the new reels into focus instead of leaving the user
+  // "Run next week" brings the new reels into focus instead of leaving the user
   // staring at week 1.
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -89,46 +90,52 @@ export default function WeekSection({
   const cpcDelta = prevCpc && prevCpc > 0 && avgCpc > 0 ? ((avgCpc - prevCpc) / prevCpc) * 100 : null;
   const killedCount = killedSet.size;
 
-  const accentDot = week === 1 ? "bg-primary" : week === 2 ? "bg-amber-500" : "bg-green-500";
   const phaseText = status?.phase ? PHASE_TEXT[status.phase] : undefined;
 
   return (
-    <div ref={ref} className="bg-card rounded-bento shadow-bento p-6 space-y-5 scroll-mt-6">
+    <div
+      ref={ref}
+      className={`border rounded-bento bg-panel p-6 space-y-5 scroll-mt-20 ${
+        isActive ? "border-primary/40" : "border-line"
+      }`}
+    >
       {/* Week header + summary */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold text-white ${accentDot}`}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-[13px] font-bold ${
+              isActive
+                ? "border-primary/50 bg-primary/10 text-primary"
+                : "border-line bg-inset text-muted"
+            }`}
+          >
             {week}
           </div>
-          <div>
-            <h2 className="font-display text-[16px] font-bold text-foreground">Week {week}</h2>
-            <p className="text-[12px] text-foreground/40">
+          <div className="min-w-0">
+            <h2 className="font-display text-[16px] font-bold text-foreground">
+              Week {week}
+            </h2>
+            <p className="font-mono text-[11px] text-muted truncate">
               {(variants?.length ?? 0)} reels
-              {isComplete
-                ? " · complete"
-                : isActive
-                  ? " · running"
-                  : ""}
+              {isComplete ? " · complete" : isActive ? " · live" : ""}
               {killedCount > 0 ? ` · ${killedCount} cut` : ""}
             </p>
           </div>
         </div>
         {metricsStarted && (
-          <div className="flex items-center gap-5">
-            <span className="rounded-full bg-amber-500/10 text-amber-600 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
-              Simulated
-            </span>
-            <Metric label="CPC" value={`$${avgCpc.toFixed(2)}`} delta={cpcDelta} />
-            <Metric label="CAC" value={`$${avgCac.toFixed(2)}`} />
+          <div className="flex items-center gap-4">
+            <Chip tone="warn">sim</Chip>
+            <Stat label="CPC" value={`$${avgCpc.toFixed(2)}`} delta={cpcDelta} />
+            <Stat label="CAC" value={`$${avgCac.toFixed(2)}`} />
           </div>
         )}
       </div>
 
       {/* This week's hypotheses */}
       {hypotheses && hypotheses.length > 0 && (
-        <div className="bg-background rounded-[14px] p-4">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-primary/50 block mb-2">
-            Week {week} Hypotheses
+        <div className="border border-line bg-inset rounded-xl p-4">
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/70 block mb-3">
+            Week {week} hypotheses
           </span>
           <HypothesisList hypotheses={hypotheses} />
         </div>
@@ -149,16 +156,18 @@ export default function WeekSection({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center py-10 text-foreground/30">
-          <div className="w-10 h-10 rounded-full bg-background animate-pulse mb-3" />
-          <p className="text-[13px] font-medium">{phaseText ?? "Preparing this week…"}</p>
+        <div className="flex flex-col items-center py-10">
+          <div className="w-10 h-10 rounded-lg animate-shimmer mb-3" />
+          <p className="font-mono text-[12px] text-muted">
+            {phaseText ?? "Preparing this week…"}
+          </p>
         </div>
       )}
 
       {/* Live status line while the active week is still working */}
       {variants && variants.length > 0 && !isComplete && phaseText && (
-        <div className="flex items-center gap-2 text-[12px] text-foreground/40">
-          <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+        <div className="flex items-center gap-2 font-mono text-[12px] text-info">
+          <span className="h-1.5 w-1.5 rounded-full bg-info animate-pulse" />
           {phaseText}
         </div>
       )}
@@ -180,13 +189,15 @@ export default function WeekSection({
   );
 }
 
-function Metric({ label, value, delta }: { label: string; value: string; delta?: number | null }) {
+function Stat({ label, value, delta }: { label: string; value: string; delta?: number | null }) {
   return (
     <div className="text-right">
-      <span className="block text-[9px] font-semibold uppercase tracking-wide text-foreground/30">{label}</span>
-      <span className="text-[15px] font-bold text-foreground">{value}</span>
+      <span className="block font-mono text-[9px] font-semibold uppercase tracking-wider text-muted">
+        {label}
+      </span>
+      <span className="font-mono text-[14px] font-bold text-foreground">{value}</span>
       {delta != null && (
-        <span className={`ml-1.5 text-[10px] font-bold ${delta < 0 ? "text-green-600" : "text-red-500"}`}>
+        <span className={`ml-1.5 font-mono text-[10px] font-bold ${delta < 0 ? "text-good" : "text-bad"}`}>
           {delta > 0 ? "+" : ""}{delta.toFixed(0)}%
         </span>
       )}

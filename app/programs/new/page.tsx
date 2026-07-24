@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Logo, Chip } from "@/components/ui";
 import ProductInputForm from "@/components/ProductInputForm";
 
 // Seed of the New Program Wizard (PRD §17.3). Still collects the ad-template
@@ -6,25 +6,29 @@ import ProductInputForm from "@/components/ProductInputForm";
 // with Phase 1.
 export default function NewProgramPage() {
   return (
-    <div className="min-h-screen bg-background p-6 md:p-10">
-      {/* Header */}
-      <div className="max-w-3xl mx-auto mb-6">
-        <Link href="/" className="font-display text-xl font-bold tracking-tight text-foreground">
-          Hypo<span className="text-primary">Cycle</span>
-        </Link>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <Logo />
+          <Chip tone="primary">New program</Chip>
+        </div>
 
-      {/* Form card — bento island */}
-      <div className="max-w-3xl mx-auto bg-card rounded-bento shadow-bento p-8 md:p-12">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-2">
-          Set up your experiment program
-        </h1>
-        <p className="text-foreground/50 text-[15px] mb-10">
-          Tell us about your product and budget. HypoCycle will generate
-          falsifiable hypotheses, test ad variants in a simulated campaign, and
-          show you the evidence for what works.
-        </p>
-        <ProductInputForm />
+        <div className="border border-line rounded-bento bg-panel p-8 md:p-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted mb-3">
+            Template · ad-creative optimization
+          </p>
+          <h1 className="font-display text-3xl font-bold text-foreground mb-3">
+            Set up your experiment program
+          </h1>
+          <p className="text-muted text-[14px] leading-relaxed mb-10 max-w-lg">
+            Tell HypoCycle about your product and budget. It will generate
+            falsifiable hypotheses, test ad variants in a{" "}
+            <span className="text-warn">simulated</span> campaign, and show you
+            the evidence for what works.
+          </p>
+          <ProductInputForm />
+        </div>
       </div>
     </div>
   );

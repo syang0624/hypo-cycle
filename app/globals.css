@@ -3,11 +3,20 @@
 @tailwind utilities;
 
 body {
-  color: #000000;
-  background: #F2F2F7;
-  font-family: "SF Pro Text", "Inter", system-ui, sans-serif;
+  color: #e8ecf4;
+  background: #0b0e14;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(124, 108, 255, 0.35);
+}
+
+/* Dot-grid backdrop for hero surfaces */
+.bg-grid {
+  background-image: radial-gradient(circle, #222a38 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Custom scrollbar — thin and subtle */
@@ -18,11 +27,11 @@ body {
   background: transparent;
 }
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #D1D1D6;
+  background: #222a38;
   border-radius: 2px;
 }
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #AEAEB2;
+  background: #38445a;
 }
 
 @keyframes fadeIn {
@@ -31,6 +40,24 @@ body {
 }
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #121722 25%, #1a2130 50%, #121722 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }
 
 @keyframes reelShimmer {

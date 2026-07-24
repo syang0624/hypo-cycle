@@ -6,19 +6,17 @@ export default function HypothesisList({
   hypotheses: Hypothesis[];
 }) {
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-2.5">
       {hypotheses.map((h, i) => (
-        <li key={h._id} className="bg-background rounded-[16px] p-4">
-          <div className="flex items-start gap-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-[12px] font-bold flex items-center justify-center">
-              {i + 1}
-            </span>
-            <div>
-              <p className="text-[13px] font-semibold text-foreground leading-snug">
-                {h.text}
-              </p>
-              <p className="text-[12px] text-foreground/45 mt-2 leading-relaxed">{h.reasoning}</p>
-            </div>
+        <li key={h._id} className="flex items-start gap-3">
+          <span className="flex-shrink-0 mt-0.5 font-mono text-[11px] font-bold text-primary">
+            H{i + 1}
+          </span>
+          <div className="min-w-0">
+            <p className="text-[13px] font-medium text-foreground leading-snug">
+              {h.text}
+            </p>
+            <p className="text-[12px] text-muted mt-1 leading-relaxed">{h.reasoning}</p>
           </div>
         </li>
       ))}

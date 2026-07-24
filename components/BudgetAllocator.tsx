@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import type { Variant, Metric } from "@/lib/types";
 
 const COLORS = [
-  "#007AFF", "#34C759", "#AF52DE", "#FF9500",
-  "#00C7BE", "#5856D6", "#FF2D55", "#5AC8FA",
+  "#7C6CFF", "#38BDF8", "#F472B6", "#FBBF24",
+  "#22D3EE", "#A78BFA", "#FB923C", "#4ADE80",
 ];
 
 type BanditRow = {
@@ -103,7 +103,7 @@ export default function BudgetAllocator({
   return (
     <div>
       {/* Stacked bar */}
-      <div className="flex h-10 rounded-full overflow-hidden mb-4 bg-background">
+      <div className="flex h-9 rounded-lg overflow-hidden mb-4 border border-line bg-inset">
         {allocations.map((a, i) =>
           a.status === "kill" ? null : (
             <div
@@ -117,7 +117,7 @@ export default function BudgetAllocator({
               title={`${a.hookType}/${a.voice}: $${a.amount}`}
             >
               {a.share > 0.08 && (
-                <span className="text-[11px] text-white font-semibold truncate px-1">
+                <span className="font-mono text-[10px] text-background font-bold truncate px-1">
                   ${a.amount}
                 </span>
               )}
@@ -131,38 +131,38 @@ export default function BudgetAllocator({
         {active.map((a) => {
           const origIndex = allocations.indexOf(a);
           return (
-            <div key={a.variantId} className="flex items-center gap-2.5 text-[12px]">
+            <div key={a.variantId} className="flex items-center gap-2.5 font-mono text-[11.5px]">
               <span
-                className="h-3 w-3 rounded-full flex-shrink-0"
+                className="h-2.5 w-2.5 rounded-[3px] flex-shrink-0"
                 style={{ backgroundColor: COLORS[origIndex % COLORS.length] }}
               />
-              <span className="text-foreground/60 truncate">
+              <span className="text-muted truncate">
                 {a.hookType}/{a.voice}
               </span>
               {a.status === "scale" && (
-                <span className="text-[10px] font-semibold text-green-600 bg-green-500/10 rounded-full px-1.5 py-0.5">
+                <span className="text-[9px] font-bold text-good border border-good/40 rounded-md px-1.5 py-0.5">
                   TOP
                 </span>
               )}
               <span className="ml-auto font-semibold text-foreground">
                 ${a.amount}
               </span>
-              <span className="text-foreground/30 w-14 text-right font-medium">
+              <span className="text-muted/50 w-14 text-right">
                 {(a.share * 100).toFixed(0)}%
               </span>
             </div>
           );
         })}
         {(killedCount > 0 || scaleCount > 0) && (
-          <p className="text-[11px] text-foreground/40 font-medium mt-2">
+          <p className="font-mono text-[10.5px] text-muted mt-2">
             {killedCount > 0 && (
-              <span className="text-red-400">
+              <span className="text-bad">
                 {killedCount} killed
               </span>
             )}
             {killedCount > 0 && scaleCount > 0 && " · "}
             {scaleCount > 0 && (
-              <span className="text-green-600">
+              <span className="text-good">
                 {scaleCount} scaling
               </span>
             )}

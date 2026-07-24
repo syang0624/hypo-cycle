@@ -117,7 +117,7 @@ export default function DNAHeatmap({
   }
 
   function cacToColor(cac: number): string {
-    if (cac === 0) return "#F2F2F7"; // empty cell — matches bg
+    if (cac === 0) return "#1A2130"; // empty cell — matches dark inset
     const t = maxCac > minCac ? (cac - minCac) / (maxCac - minCac) : 0;
     // Green (low CAC) -> Yellow -> Red (high CAC) — iOS-inspired palette
     if (t < 0.5) {
@@ -149,7 +149,7 @@ export default function DNAHeatmap({
         {voiceTypes.map((v) => (
           <div
             key={v}
-            className="text-center text-[11px] font-semibold text-foreground/40 pb-1"
+            className="text-center font-mono text-[10px] text-muted pb-1 truncate"
           >
             {v}
           </div>
@@ -161,7 +161,7 @@ export default function DNAHeatmap({
             {/* Row label */}
             <div
               key={`label-${hook}`}
-              className="flex items-center justify-end pr-2 text-[11px] font-semibold text-foreground/40"
+              className="flex items-center justify-end pr-2 font-mono text-[10px] text-muted truncate"
             >
               {hook}
             </div>
@@ -178,17 +178,17 @@ export default function DNAHeatmap({
                   key={`${hook}-${voice}`}
                   onMouseEnter={() => setHovered({ row: ri, col: ci })}
                   onMouseLeave={() => setHovered(null)}
-                  className={`rounded-[12px] h-12 flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                  className={`rounded-md h-12 flex items-center justify-center cursor-pointer transition-all duration-200 ${
                     isHovered ? "ring-2 ring-foreground scale-105" : ""
                   }`}
                   style={{ backgroundColor: delta !== null ? deltaToColor(delta) : cacToColor(cac) }}
                 >
                   {delta !== null ? (
-                    <span className={`text-[12px] font-bold ${delta < 0 ? "text-green-800" : "text-red-800"}`}>
+                    <span className="font-mono text-[11px] font-bold text-black/70">
                       {delta > 0 ? "+" : ""}{delta.toFixed(0)}%
                     </span>
                   ) : cac > 0 ? (
-                    <span className="text-[12px] font-bold text-foreground/80">
+                    <span className="font-mono text-[11px] font-bold text-black/70">
                       ${cac.toFixed(0)}
                     </span>
                   ) : null}
@@ -201,17 +201,17 @@ export default function DNAHeatmap({
 
       {/* Hover tooltip */}
       {hovered !== null && hoveredCell && (
-        <div className="mt-3 text-[12px] text-foreground/60 bg-background rounded-[14px] p-3.5">
+        <div className="mt-3 text-[12px] text-muted border border-line bg-inset rounded-lg p-3.5">
           <span className="font-semibold text-foreground">{hookTypes[hovered.row]}</span>
-          {" x "}
+          {" × "}
           <span className="font-semibold text-foreground">{voiceTypes[hovered.col]}</span>
           <div className="flex gap-4 mt-2 text-[11px]">
             {hoveredCell.cacDeltaPct !== null && (
-              <span>CAC impact: <span className={`font-bold ${hoveredCell.cacDeltaPct < 0 ? "text-green-600" : "text-red-500"}`}>
+              <span>CAC impact: <span className={`font-mono font-bold ${hoveredCell.cacDeltaPct < 0 ? "text-good" : "text-bad"}`}>
                 {hoveredCell.cacDeltaPct > 0 ? "+" : ""}{hoveredCell.cacDeltaPct.toFixed(1)}%
               </span></span>
             )}
-            <span>Avg CAC: <span className="font-bold text-foreground">${hoveredCell.avgCac.toFixed(2)}</span></span>
+            <span>Avg CAC: <span className="font-mono font-bold text-foreground">${hoveredCell.avgCac.toFixed(2)}</span></span>
             <span>{hoveredCell.count} data points</span>
             <span>${hoveredCell.totalSpend.toFixed(0)} spend</span>
             <span>{hoveredCell.totalConversions} conv.</span>
@@ -220,9 +220,9 @@ export default function DNAHeatmap({
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-3 mt-4 text-[11px] text-foreground/35 font-medium">
+      <div className="flex items-center gap-3 mt-4 font-mono text-[10px] text-muted/70">
         <span>{attributionMap ? "Lowers CAC" : "Low CAC"}</span>
-        <div className="flex h-2.5 w-28 rounded-full overflow-hidden">
+        <div className="flex h-2 w-28 rounded-sm overflow-hidden">
           {Array.from({ length: 10 }).map((_, i) => (
             <div
               key={i}

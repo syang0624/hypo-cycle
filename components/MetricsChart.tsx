@@ -15,9 +15,9 @@ import type { Metric, Variant } from "@/lib/types";
 
 type ChartMetric = "cac" | "cpc";
 
-const COLORS_GOOD = ["#34C759", "#30B350", "#2CA048"];
-const COLORS_BAD = ["#FF3B30", "#E6352B", "#CC2F26"];
-const COLORS_NEUTRAL = ["#007AFF", "#5856D6", "#AF52DE", "#FF9500", "#00C7BE", "#5AC8FA", "#FF2D55", "#64D2FF"];
+const COLORS_GOOD = ["#34D399", "#2FBF8A", "#29AB7C"];
+const COLORS_BAD = ["#F87171", "#E06565", "#C95A5A"];
+const COLORS_NEUTRAL = ["#7C6CFF", "#38BDF8", "#F472B6", "#FBBF24", "#22D3EE", "#A78BFA", "#FB923C", "#4ADE80"];
 
 export default function MetricsChart({
   metrics,
@@ -96,10 +96,10 @@ export default function MetricsChart({
           <button
             key={m}
             onClick={() => setMetric(m)}
-            className={`px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-200 ${
+            className={`px-3.5 py-1.5 rounded-md border font-mono text-[11px] font-semibold uppercase tracking-wider transition-all duration-200 ${
               metric === m
-                ? "bg-primary text-white shadow-bento"
-                : "bg-background text-foreground/50 hover:text-foreground/70"
+                ? "border-primary/60 bg-primary/15 text-primary"
+                : "border-line bg-inset text-muted hover:text-foreground/70"
             }`}
           >
             {m.toUpperCase()}
@@ -109,17 +109,18 @@ export default function MetricsChart({
 
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E5EA" />
-          <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#222A38" />
+          <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#8B94A7" }} stroke="#222A38" />
           <YAxis
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 10, fill: "#8B94A7" }}
+            stroke="#222A38"
             tickFormatter={(v: number) => `$${v}`}
           />
           <Tooltip
             content={({ active, payload, label }) => {
               if (!active || !payload) return null;
               return (
-                <div className="rounded-[16px] bg-card p-4 shadow-bento text-xs">
+                <div className="rounded-lg border border-line bg-panel p-3.5 text-xs">
                   <p className="font-semibold text-foreground mb-2">{label}</p>
                   {payload.map((entry) => {
                     const v = variantMap.get(entry.dataKey as string);
@@ -129,10 +130,10 @@ export default function MetricsChart({
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: entry.color }}
                         />
-                        <span className="text-gray-500">
+                        <span className="text-muted">
                           {v ? `${v.hookType} / ${v.voice} / ${v.pacing}` : "?"}
                         </span>
-                        <span className="font-medium ml-auto">
+                        <span className="font-mono font-medium ml-auto text-foreground">
                           ${Number(entry.value).toFixed(2)}
                         </span>
                       </div>
@@ -144,7 +145,7 @@ export default function MetricsChart({
           />
           <Legend
             formatter={(value: string) => (
-              <span className="text-[10px] text-gray-500">{variantLabel(value)}</span>
+              <span className="font-mono text-[10px] text-muted">{variantLabel(value)}</span>
             )}
           />
           {variantIds.map((id, i) => (

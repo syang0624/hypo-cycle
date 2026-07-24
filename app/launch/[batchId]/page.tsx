@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/ui";
 
 const STEPS = [
   { label: "Analyzing your product", duration: 1200 },
-  { label: "Generating hypotheses", duration: 1000 },
-  { label: "Creating ad variants", duration: 1400 },
-  { label: "Building experiment plan", duration: 800 },
-  { label: "Starting simulation", duration: 600 },
+  { label: "Generating falsifiable hypotheses", duration: 1000 },
+  { label: "Building treatment variants", duration: 1400 },
+  { label: "Compiling experiment plan", duration: 800 },
+  { label: "Starting simulated campaign", duration: 600 },
 ];
 
 export default function LaunchPage({
@@ -45,73 +46,63 @@ export default function LaunchPage({
     return () => clearInterval(timer);
   }, [step, params.batchId, router]);
 
-  const currentLabel = step < STEPS.length ? STEPS[step].label : "Launching...";
-
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="bg-card rounded-bento shadow-bento p-10 md:p-14 w-full max-w-lg text-center">
-        {/* Animated logo */}
-        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground mb-8">
-          Hypo<span className="text-primary">Cycle</span>
-        </h1>
-
-        {/* Spinner ring */}
-        <div className="relative w-20 h-20 mx-auto mb-8">
-          <svg className="w-20 h-20 animate-spin" viewBox="0 0 80 80">
-            <circle
-              cx="40"
-              cy="40"
-              r="34"
-              fill="none"
-              stroke="#F2F2F7"
-              strokeWidth="5"
-            />
-            <circle
-              cx="40"
-              cy="40"
-              r="34"
-              fill="none"
-              stroke="#007AFF"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeDasharray="160"
-              strokeDashoffset="120"
-            />
-          </svg>
+    <div className="min-h-screen bg-background bg-grid flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-8">
+          <Logo size="lg" />
         </div>
 
-        {/* Current step */}
-        <p className="text-[15px] font-semibold text-foreground mb-2">
-          {currentLabel}
-        </p>
+        {/* Provisioning console */}
+        <div className="border border-line rounded-bento bg-panel overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-line bg-inset px-4 py-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-bad/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warn/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-good/60" />
+            <span className="ml-2 font-mono text-[11px] text-muted">
+              hypocycle · provisioning cycle
+            </span>
+          </div>
 
-        {/* Step indicators */}
-        <div className="flex justify-center gap-3 mb-6">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.label}
-              className={`h-1.5 w-8 rounded-full transition-all duration-500 ${
-                i < step
-                  ? "bg-primary"
-                  : i === step
-                    ? "bg-primary/40"
-                    : "bg-foreground/10"
-              }`}
-            />
-          ))}
+          <div className="p-5 font-mono text-[12.5px] space-y-2.5">
+            {STEPS.map((s, i) => (
+              <div key={s.label} className="flex items-center gap-2.5">
+                {i < step ? (
+                  <span className="text-good">✓</span>
+                ) : i === step ? (
+                  <span className="text-primary animate-blink">▸</span>
+                ) : (
+                  <span className="text-line">·</span>
+                )}
+                <span
+                  className={
+                    i < step
+                      ? "text-muted"
+                      : i === step
+                        ? "text-foreground"
+                        : "text-muted/40"
+                  }
+                >
+                  {s.label}
+                  {i === step && <span className="animate-blink">…</span>}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div className="px-5 pb-5">
+            <div className="w-full h-1 bg-inset rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-100 ease-linear"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="font-mono text-[10px] text-muted/60 mt-3 truncate">
+              cycle: {params.batchId}
+            </p>
+          </div>
         </div>
-
-        {/* Progress bar */}
-        <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-100 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <p className="text-[12px] text-foreground/30 mt-4">
-          Cycle {params.batchId}
-        </p>
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ export default function ReelPreview({
 
   return (
     <div
-      className={`relative w-full aspect-[9/16] rounded-[14px] mb-3 overflow-hidden ${
+      className={`relative w-full aspect-[9/16] rounded-lg mb-0 overflow-hidden ${
         status === "killed" ? "grayscale opacity-50" : ""
       }`}
     >

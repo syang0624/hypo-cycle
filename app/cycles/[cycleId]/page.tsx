@@ -9,13 +9,14 @@ import WeekSection from "@/components/WeekSection";
 import BudgetAllocator from "@/components/BudgetAllocator";
 import DNAHeatmap from "@/components/DNAHeatmap";
 import MetricsChart from "@/components/MetricsChart";
+import { Logo, Panel, Chip, SimBadge, Skeleton } from "@/components/ui";
 
 const PHASE_LABELS: Record<string, string> = {
-  strategizing: "Strategizing...",
-  generating: "Generating variants...",
-  generating_video: "Generating reels...",
-  simulating: "Simulating campaign...",
-  analyzing: "Analyzing results...",
+  strategizing: "Hypothesizing",
+  generating: "Building variants",
+  generating_video: "Producing reels",
+  simulating: "Simulating",
+  analyzing: "Evaluating",
   complete: "Complete",
   failed: "Failed",
 };
@@ -34,11 +35,10 @@ export default function CyclePage({
 
 /**
  * The campaign accumulates one WEEK (= one batch) at a time. The page renders a
- * stack of WeekSections for every batch the product has run so far — Week 1 on
- * top, each newly-generated week appended below with its own distinct reels.
- * Past weeks are frozen; the active week (the batchId in the URL) streams live.
- * "Run Next Week" generates the next batch and routes here under its id, so the
- * new week appears at the bottom while the earlier weeks stay put.
+ * stack of WeekSections for every batch the product has run so far — newest on
+ * top, each newly-generated week appended with its own distinct reels. Past
+ * weeks are frozen; the active week (the batchId in the URL) streams live.
+ * "Run Next Week" generates the next batch and routes here under its id.
  */
 function LiveDashboard({ batchId }: { batchId: string }) {
   const router = useRouter();
@@ -86,96 +86,72 @@ function LiveDashboard({ batchId }: { batchId: string }) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="p-4 lg:p-6 pb-0">
-        <header className="bg-card rounded-bento shadow-bento px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="font-display text-xl font-bold tracking-tight text-foreground">
-                Hypo<span className="text-primary">Cycle</span>
-              </h1>
-              <span className="text-[13px] text-foreground/40 font-medium">
-                Campaign · Week {weekNumber}
-              </span>
-              <span className="rounded-full bg-amber-500/10 text-amber-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide">
-                Simulated
-              </span>
-            </div>
-            {status === undefined || status === null ? (
-              <span className="text-[13px] text-foreground/30">Loading...</span>
-            ) : (
-              <div className="flex items-center gap-3">
-                {status.status === "running" && status.progress != null && (
-                  <div className="w-24 h-1.5 bg-background rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all duration-500"
-                      style={{ width: `${Math.round((status.progress as number) * 100)}%` }}
-                    />
-                  </div>
-                )}
-                <span
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[12px] font-semibold ${
-                    isFailed
-                      ? "bg-red-500/10 text-red-500"
-                      : status.status === "running"
-                        ? "bg-green-500/10 text-green-600"
-                        : "bg-foreground/5 text-foreground/50"
-                  }`}
-                >
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      isFailed
-                        ? "bg-red-500"
-                        : status.status === "running"
-                          ? "bg-green-500 animate-pulse"
-                          : "bg-foreground/30"
-                    }`}
-                  />
-                  {phaseLabel ?? (status.status === "running" ? "Running" : "Complete")}
-                </span>
-                {isComplete && productId && !isLastWeek && (
-                  <button
-                    onClick={handleNextBatch}
-                    disabled={launchingNext}
-                    className="rounded-full bg-primary text-white px-4 py-1.5 text-[12px] font-semibold hover:bg-primary/90 transition-all duration-200 disabled:opacity-50"
-                  >
-                    {launchingNext ? "Starting..." : "Run Next Week ▸"}
-                  </button>
-                )}
-                {isComplete && isLastWeek && (
-                  <span className="rounded-full bg-green-500/10 text-green-600 px-4 py-1.5 text-[12px] font-semibold">
-                    Campaign complete · 3 weeks
-                  </span>
-                )}
-              </div>
-            )}
+      {/* Command bar */}
+      <header className="sticky top-0 z-40 border-b border-line bg-background/80 backdrop-blur-md">
+        <div className="mx-auto max-w-[1400px] px-5 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <Logo />
+            <span className="hidden sm:block font-mono text-[11px] text-muted truncate">
+              program/ad-creative · week {weekNumber}
+            </span>
+            <SimBadge />
           </div>
-        </header>
-      </div>
+
+          {status === undefined || status === null ? (
+            <span className="font-mono text-[11px] text-muted">loading…</span>
+          ) : (
+            <div className="flex items-center gap-3">
+              {status.status === "running" && status.progress != null && (
+                <div className="hidden md:block w-28 h-1 bg-inset rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-500"
+                    style={{ width: `${Math.round((status.progress as number) * 100)}%` }}
+                  />
+                </div>
+              )}
+              <Chip
+                tone={isFailed ? "bad" : status.status === "running" ? "info" : "good"}
+                pulse={status.status === "running"}
+              >
+                {phaseLabel ?? (status.status === "running" ? "Running" : "Complete")}
+              </Chip>
+              {isComplete && productId && !isLastWeek && (
+                <button
+                  onClick={handleNextBatch}
+                  disabled={launchingNext}
+                  className="rounded-lg bg-primary text-white px-4 py-2 text-[12px] font-semibold hover:bg-primary/90 shadow-glow transition-all disabled:opacity-50"
+                >
+                  {launchingNext ? "Starting…" : "Run next week →"}
+                </button>
+              )}
+              {isComplete && isLastWeek && (
+                <Chip tone="good">Campaign complete · 3 weeks</Chip>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* Error banner */}
       {isFailed && status?.error && (
-        <div className="mx-4 lg:mx-6 mt-4">
-          <div className="bg-red-50 rounded-bento p-5 flex items-start gap-3">
-            <span className="text-red-500 text-lg flex-shrink-0">!</span>
+        <div className="mx-auto max-w-[1400px] px-5 mt-5">
+          <div className="border border-bad/40 bg-bad/10 rounded-bento p-5 flex items-start gap-3">
+            <span className="font-mono text-bad text-[14px] flex-shrink-0">✕</span>
             <div>
-              <p className="text-[13px] font-semibold text-red-600">Experiment failed</p>
-              <p className="text-[12px] text-red-500/70 mt-1">{status.error}</p>
+              <p className="text-[13px] font-semibold text-bad">Cycle failed</p>
+              <p className="font-mono text-[12px] text-bad/70 mt-1">{status.error}</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-12 gap-4 lg:gap-5 p-4 lg:p-6">
+      <div className="mx-auto max-w-[1400px] grid grid-cols-12 gap-5 px-5 py-6">
         {/* Main — one section per week, stacked as the campaign progresses */}
         <main className="col-span-12 lg:col-span-8 space-y-5">
           {weeks === undefined ? (
-            <div className="bg-card rounded-bento shadow-bento p-6">
-              <div className="flex flex-col items-center py-12 text-foreground/30">
-                <div className="w-12 h-12 rounded-full bg-background animate-pulse mb-4" />
-                <p className="text-[13px] font-medium">Loading campaign…</p>
-              </div>
-            </div>
+            <Panel title="Campaign">
+              <Skeleton lines={5} />
+            </Panel>
           ) : (
             // Newest week on top. `weeks` is chronological (week = index+1), so
             // each week's delta still references its chronological predecessor.
@@ -199,9 +175,9 @@ function LiveDashboard({ batchId }: { batchId: string }) {
         </main>
 
         {/* Sidebar — cross-week trend + this week's live analytics */}
-        <aside className="col-span-12 lg:col-span-4 space-y-4 lg:space-y-5">
+        <aside className="col-span-12 lg:col-span-4 space-y-5">
           {weeks && weeks.length > 0 && (
-            <BentoCard title="CPC by Week">
+            <Panel title="CPC by week" tone="primary">
               <div className="flex items-end gap-3 h-28">
                 {(() => {
                   const maxCpc = Math.max(...weeks.map((x) => x.avgCpc), 0.01);
@@ -209,87 +185,52 @@ function LiveDashboard({ batchId }: { batchId: string }) {
                     const height = w.avgCpc > 0 ? (w.avgCpc / maxCpc) * 100 : 4;
                     return (
                       <div key={w.batchId} className="flex-1 flex flex-col items-center gap-1.5">
-                        <span className="text-[11px] font-bold text-foreground">
+                        <span className="font-mono text-[11px] font-bold text-foreground">
                           {w.avgCpc > 0 ? `$${w.avgCpc.toFixed(2)}` : "—"}
                         </span>
                         <div
-                          className={`w-full rounded-t-[8px] transition-all duration-500 ${
-                            w.batchId === batchId ? "bg-primary" : "bg-primary/30"
+                          className={`w-full rounded-t-[4px] transition-all duration-500 ${
+                            w.batchId === batchId ? "bg-primary" : "bg-primary/25"
                           }`}
                           style={{ height: `${height}%` }}
                         />
-                        <span className="text-[10px] text-foreground/40 font-semibold">Wk {w.week}</span>
+                        <span className="font-mono text-[10px] text-muted">wk{w.week}</span>
                       </div>
                     );
                   });
                 })()}
               </div>
-              <p className="text-[11px] text-foreground/40 text-center mt-3">
-                Hunting for the lowest-CPC reel across weeks · simulated data
+              <p className="font-mono text-[10px] text-muted/70 text-center mt-3">
+                hunting the lowest-CPC reel · simulated data
               </p>
-            </BentoCard>
+            </Panel>
           )}
 
-          <BentoCard title={`Week ${weekNumber} · Budget Reallocation`}>
+          <Panel title={`Week ${weekNumber} · Budget allocation`}>
             {variants === undefined || metrics === undefined || !metricsStarted ? (
               <Skeleton lines={3} />
             ) : (
               <BudgetAllocator variants={variants} metrics={metrics} banditAllocations={allocations} />
             )}
-          </BentoCard>
+          </Panel>
 
-          <BentoCard title={`Week ${weekNumber} · Creative DNA`}>
+          <Panel title={`Week ${weekNumber} · Creative DNA`}>
             {variants === undefined || metrics === undefined || !metricsStarted ? (
               <Skeleton lines={4} />
             ) : (
               <DNAHeatmap variants={variants} metrics={metrics} analystData={analystData} />
             )}
-          </BentoCard>
+          </Panel>
 
-          <BentoCard title={`Week ${weekNumber} · Performance`}>
+          <Panel title={`Week ${weekNumber} · Performance`}>
             {metrics === undefined || variants === undefined || !metricsStarted ? (
               <Skeleton lines={5} />
             ) : (
               <MetricsChart metrics={metrics} variants={variants} />
             )}
-          </BentoCard>
+          </Panel>
         </aside>
       </div>
-    </div>
-  );
-}
-
-function BentoCard({
-  title,
-  accent,
-  children,
-}: {
-  title: string;
-  accent?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="bg-card rounded-bento shadow-bento p-6">
-      <h2 className={`text-[12px] font-semibold uppercase tracking-widest mb-5 ${
-        accent ? "text-primary" : "text-foreground/35"
-      }`}>
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-}
-
-function Skeleton({ lines }: { lines: number }) {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: lines }).map((_, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-[10px] bg-background h-4"
-          style={{ width: `${70 + Math.random() * 30}%` }}
-        />
-      ))}
     </div>
   );
 }

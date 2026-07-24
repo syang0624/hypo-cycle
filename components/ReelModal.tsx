@@ -45,13 +45,13 @@ export default function ReelModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-sm bg-card rounded-bento shadow-bento overflow-hidden"
+        className="relative w-full max-w-sm border border-line bg-panel rounded-bento overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/40 text-white text-[16px] leading-none flex items-center justify-center hover:bg-black/60"
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-lg bg-black/50 text-white text-[16px] leading-none flex items-center justify-center hover:bg-black/70"
         >
           ×
         </button>
@@ -66,24 +66,24 @@ export default function ReelModal({
             playsInline
           />
         ) : (
-          <div className="w-full aspect-[9/16] flex items-center justify-center bg-background text-[13px] text-foreground/40">
+          <div className="w-full aspect-[9/16] flex items-center justify-center bg-inset font-mono text-[12px] text-muted">
             No video available
           </div>
         )}
 
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="rounded-full bg-foreground text-card px-2.5 py-0.5 text-[10px] font-bold">
+            <span className="rounded-md bg-foreground text-background px-2 py-0.5 font-mono text-[10px] font-bold">
               {hookType}
             </span>
-            <span className="text-[11px] text-foreground/40">{voice}</span>
+            <span className="font-mono text-[11px] text-muted">{voice}</span>
             {killed && (
-              <span className="ml-auto rounded-full bg-red-500/10 text-red-500 px-2.5 py-0.5 text-[10px] font-bold">
+              <span className="ml-auto rounded-md border border-bad/40 text-bad px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider">
                 CUT
               </span>
             )}
           </div>
-          <p className="text-[12px] text-foreground/60 leading-relaxed">&ldquo;{script}&rdquo;</p>
+          <p className="text-[12px] text-foreground/70 leading-relaxed">&ldquo;{script}&rdquo;</p>
         </div>
       </div>
     </div>,

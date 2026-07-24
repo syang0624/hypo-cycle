@@ -99,14 +99,14 @@ export default function ProductInputForm() {
       <button
         type="button"
         onClick={prefillSample}
-        className="text-[13px] text-primary font-medium hover:text-primary/80 transition-colors"
+        className="font-mono text-[12px] text-primary font-medium hover:text-primary/80 transition-colors"
       >
         Prefill with Coca-Cola sample data
       </button>
 
       {/* Group 1: Product Details */}
       <fieldset className="space-y-5">
-        <legend className="font-display text-lg font-bold text-foreground">Product Details</legend>
+        <legend className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Product Details</legend>
 
         <Field label="Product Name" error={errors.name}>
           <input
@@ -171,7 +171,7 @@ export default function ProductInputForm() {
 
       {/* Group 2: Budget */}
       <fieldset className="space-y-4">
-        <legend className="font-display text-lg font-bold text-foreground">Budget</legend>
+        <legend className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Budget</legend>
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Daily Budget ($)" error={errors.dailyBudget}>
@@ -219,8 +219,8 @@ export default function ProductInputForm() {
 
       {/* Group 3: Existing Creative */}
       <fieldset className="space-y-4">
-        <legend className="font-display text-lg font-bold text-foreground">Existing Creative</legend>
-        <p className="text-sm text-gray-500">
+        <legend className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Existing Creative</legend>
+        <p className="text-[13px] text-muted">
           Describe any past ads, reels, or creative assets you have. File upload coming soon.
         </p>
         <textarea
@@ -232,15 +232,15 @@ export default function ProductInputForm() {
 
       {/* Group 4: Experiment Goal */}
       <fieldset className="space-y-3">
-        <legend className="font-display text-lg font-bold text-foreground">Experiment Goal</legend>
+        <legend className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Experiment Goal</legend>
 
         {GOALS.map((g) => (
           <label
             key={g.value}
-            className={`flex items-center gap-3 cursor-pointer rounded-[14px] p-3.5 transition-all duration-200 ${
+            className={`flex items-center gap-3 cursor-pointer rounded-lg border p-3.5 transition-all duration-200 ${
               form.goal === g.value
-                ? "bg-primary/10 ring-2 ring-primary"
-                : "bg-background hover:bg-background/80"
+                ? "border-primary/60 bg-primary/10"
+                : "border-line bg-inset hover:border-muted/40"
             }`}
           >
             <input
@@ -259,7 +259,7 @@ export default function ProductInputForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-[14px] bg-primary text-white py-3.5 text-[15px] font-semibold hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-bento"
+        className="w-full rounded-lg bg-primary text-white py-3.5 text-[14px] font-semibold hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-glow"
       >
         {submitting ? "Launching experiment..." : "Launch Experiment"}
       </button>
@@ -278,17 +278,17 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-[13px] font-semibold text-foreground/60 mb-1.5">
+      <label className="block text-[13px] font-medium text-foreground/80 mb-1.5">
         {label}
       </label>
       {children}
-      {error && <p className="text-red-500 text-[12px] font-medium mt-1.5">{error}</p>}
+      {error && <p className="text-bad font-mono text-[11px] font-medium mt-1.5">{error}</p>}
     </div>
   );
 }
 
 function inputClass(error?: string) {
-  return `w-full rounded-[12px] border-none bg-background px-4 py-3 text-[14px] text-foreground outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/30 placeholder:text-foreground/30 ${
-    error ? "ring-2 ring-red-400" : ""
+  return `w-full rounded-lg border bg-inset px-4 py-3 text-[14px] text-foreground outline-none transition-all duration-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 placeholder:text-muted/50 ${
+    error ? "border-bad/60" : "border-line"
   }`;
 }
