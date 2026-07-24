@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HookLoop — Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  /* Navigation */
+  .nav {
+    position: fixed; bottom: 32px; right: 40px; z-index: 100;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .nav button {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; border-radius: 50%; width: 44px; height: 44px;
+    font-size: 18px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav button:hover { background: rgba(255,255,255,0.2); }
+  .nav .counter { font-size: 13px; color: rgba(255,255,255,0.4); font-weight: 500; }
+
+  /* Progress bar */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; z-index: 100;
+    background: #007AFF; transition: width 0.4s ease;
+  }
+
+  /* Slide styles */
+  h1 { font-size: 64px; font-weight: 900; line-height: 1.1; letter-spacing: -2px; }
+  h2 { font-size: 48px; font-weight: 800; line-height: 1.15; letter-spacing: -1.5px; }
+  h3 { font-size: 32px; font-weight: 700; line-height: 1.3; }
+  .subtitle { font-size: 22px; color: rgba(255,255,255,0.5); font-weight: 500; margin-top: 16px; max-width: 700px; text-align: center; line-height: 1.5; }
+  .blue { color: #007AFF; }
+  .green { color: #34C759; }
+  .red { color: #FF3B30; }
+  .dim { color: rgba(255,255,255,0.4); }
+  .small { font-size: 16px; color: rgba(255,255,255,0.35); margin-top: 24px; }
+
+  /* Stat grid */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    margin-top: 48px; width: 100%; max-width: 900px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px; padding: 32px; text-align: center;
+  }
+  .stat .num { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
+  .stat .label { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Pain point cards */
+  .pain-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-top: 48px; width: 100%; max-width: 1000px;
+  }
+  .pain-card {
+    background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.15);
+    border-radius: 20px; padding: 32px;
+  }
+  .pain-card h4 { font-size: 18px; font-weight: 700; color: #FF6961; margin-bottom: 12px; }
+  .pain-card p { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* Solution cards */
+  .sol-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
+    margin-top: 48px; width: 100%; max-width: 1000px;
+  }
+  .sol-card {
+    background: rgba(0,122,255,0.08); border: 1px solid rgba(0,122,255,0.15);
+    border-radius: 20px; padding: 28px;
+  }
+  .sol-card .step { font-size: 13px; font-weight: 700; color: #007AFF; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .sol-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .sol-card p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+
+  /* Flow diagram */
+  .flow {
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 48px; flex-wrap: wrap; justify-content: center;
+  }
+  .flow-step {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 20px 28px; text-align: center;
+  }
+  .flow-step.active-step { background: rgba(0,122,255,0.15); border-color: rgba(0,122,255,0.3); }
+  .flow-step .flow-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); }
+  .flow-step .flow-val { font-size: 20px; font-weight: 800; margin-top: 4px; }
+  .flow-arrow { font-size: 20px; color: rgba(255,255,255,0.2); }
+
+  /* Comparison table */
+  .compare {
+    margin-top: 48px; width: 100%; max-width: 800px;
+    border-collapse: separate; border-spacing: 0;
+  }
+  .compare th {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: rgba(255,255,255,0.3); padding: 16px 24px; text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .compare td {
+    font-size: 16px; font-weight: 500; padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6);
+  }
+  .compare td:first-child { font-weight: 600; color: #fff; }
+  .compare .old { color: #FF6961; }
+  .compare .new { color: #34C759; font-weight: 700; }
+
+  /* CTA slide */
+  .cta-box {
+    margin-top: 40px; padding: 40px 60px;
+    background: rgba(0,122,255,0.1); border: 1px solid rgba(0,122,255,0.2);
+    border-radius: 24px; text-align: center;
+  }
+  .cta-box a {
+    display: inline-block; margin-top: 20px;
+    background: #007AFF; color: #fff; font-size: 16px; font-weight: 700;
+    padding: 14px 40px; border-radius: 12px; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .cta-box a:hover { background: #0066DD; }
+
+  /* Keyboard hint */
+  .hint {
+    position: fixed; bottom: 36px; left: 40px;
+    font-size: 12px; color: rgba(255,255,255,0.2);
+  }
+
+  /* Left-aligned slides */
+  .left-align { align-items: flex-start; padding-left: 120px; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active" data-bg="#000">
+    <h1>Hook<span class="blue">Loop</span></h1>
+    <p class="subtitle">The AI agent that replaces your marketing team's trial-and-error with a self-improving loop that finds the lowest CPC reel — automatically.</p>
+    <p class="small">Built for the Convex Hackathon 2026</p>
+  </div>
+
+  <!-- SLIDE 2: The Problem -->
+  <div class="slide left-align">
+    <h3 class="dim" style="margin-bottom:8px;">THE PROBLEM</h3>
+    <h2>Paid ads are a<br><span class="red">guessing game.</span></h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <h4>$190B wasted annually</h4>
+        <p>Brands spend on ads that don't convert. Marketing interns test 3 creatives, pick the "best" one, and call it a day. No systematic experimentation.</p>
+      </div>
+      <div class="pain-card">
+        <h4>CPC vs CAC confusion</h4>
+        <p>Teams optimize for cheap clicks (low CPC) instead of actual customers (low CAC). A viral reel with $0.10 CPC but 0% conversion is worthless.</p>
+      </div>
+      <div class="pain-card">
+        <h4>Creative fatigue is invisible</h4>
+        <p>Ads that worked last month stop working. By the time you notice, you've burned thousands. There's no feedback loop — just vibes.</p>
+      </div>
+      <div class="pain-card">
+        <h4>Manual iteration is slow</h4>
+        <p>Testing a new hook angle takes a week to brief, produce, launch, and analyze. A startup running 3 tests/month is moving at a crawl.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: CPC vs CAC explained -->
+  <div class="slide">
+    <h3 class="dim" style="margin-bottom:8px;">KEY INSIGHT</h3>
+    <h2>CPC is vanity.<br><span class="blue">CAC is reality.</span></h2>
+    <div class="stats" style="grid-template-columns: 1fr 1fr;">
+      <div class="stat">
+        <div class="num red">CPC</div>
+        <div class="label">Cost Per Click</div>
+        <p style="font-size:14px; color:rgba(255,255,255,0.35); margin-top:16px; line-height:1.5;">
+          What you pay for each click.<br>
+          Low CPC = cheap attention.<br>
+          <strong style="color:#FF6961;">But attention != customers.</strong><br>
+          A curiosity-hook reel gets tons of clicks at $0.15 CPC — but nobody buys.
+        </p>
+      </div>
+      <div class="stat" style="background:rgba(52,199,89,0.08); border-color:rgba(52,199,89,0.15);">
+        <div class="num green">CAC</div>
+        <div class="label">Cost to Acquire Customer</div>
+        <p style="font-size:14px; color:rgba(255,255,255,0.35); margin-top:16px; line-height:1.5;">
+          What you pay for each real customer.<br>
+          Low CAC = efficient growth.<br>
+          <strong style="color:#34C759;">This is the only metric that matters.</strong><br>
+          A pain-point reel gets fewer clicks at $0.80 CPC — but 4% convert.
+        </p>
+      </div>
+    </div>
+    <p class="small">HookLoop optimizes for CAC, not CPC. The bandit kills high-CPC-but-low-conversion reels automatically.</p>
+  </div>
+
+  <!-- SLIDE 4: What HookLoop does -->
+  <div class="slide left-align">
+    <h3 class="dim" style="margin-bottom:8px;">THE SOLUTION</h3>
+    <h2>An AI agent that runs<br>your ad experiments <span class="blue">for you.</span></h2>
+    <div class="sol-grid">
+      <div class="sol-card">
+        <div class="step">Week 1</div>
+        <h4>Generate & Test</h4>
+        <p>AI strategist creates hypotheses. AI generator produces 8 unique reels with Sora. Deploys them with a real budget split.</p>
+      </div>
+      <div class="sol-card">
+        <div class="step">Week 2</div>
+        <h4>Learn & Iterate</h4>
+        <p>Thompson sampling bandit kills underperformers, shifts budget to winners. AI analyst explains WHY — "narrator voice reads as corporate to Gen Z."</p>
+      </div>
+      <div class="sol-card">
+        <div class="step">Week 3</div>
+        <h4>Optimize & Win</h4>
+        <p>New reels generated from revised hypotheses. CPC drops 44%. Best reel identified. Ready to scale — no human intervention needed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: The Loop -->
+  <div class="slide">
+    <h3 class="dim" style="margin-bottom:8px;">HOW IT WORKS</h3>
+    <h2>The <span class="blue">Loop</span></h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-label">Input</div>
+        <div class="flow-val">Product + Budget</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active-step">
+        <div class="flow-label">AI Strategist</div>
+        <div class="flow-val">Hypotheses</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active-step">
+        <div class="flow-label">AI Generator</div>
+        <div class="flow-val">8 Sora Reels</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Simulator</div>
+        <div class="flow-val">3-Day Campaign</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active-step">
+        <div class="flow-label">Bandit</div>
+        <div class="flow-val">Kill / Scale</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">AI Analyst</div>
+        <div class="flow-val">Attribution</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color:rgba(52,199,89,0.3); background:rgba(52,199,89,0.08);">
+        <div class="flow-label">Repeat</div>
+        <div class="flow-val green">Better Reels</div>
+      </div>
+    </div>
+    <p class="small">Each loop produces reels that are measurably better than the last. The system learns from itself.</p>
+  </div>
+
+  <!-- SLIDE 6: Coca-Cola Demo Results -->
+  <div class="slide">
+    <h3 class="dim" style="margin-bottom:8px;">DEMO RESULTS</h3>
+    <h2>Coca-Cola in <span class="blue">3 weeks</span></h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="num">9</div>
+        <div class="label">Reels Tested</div>
+      </div>
+      <div class="stat">
+        <div class="num green">44%</div>
+        <div class="label">CPC Reduction</div>
+      </div>
+      <div class="stat">
+        <div class="num green">60%</div>
+        <div class="label">CAC Reduction</div>
+      </div>
+    </div>
+    <div class="flow" style="margin-top:32px;">
+      <div class="flow-step">
+        <div class="flow-label">Week 1 CPC</div>
+        <div class="flow-val">$1.04</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Week 2 CPC</div>
+        <div class="flow-val">$0.78</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color:rgba(52,199,89,0.3); background:rgba(52,199,89,0.08);">
+        <div class="flow-label">Week 3 CPC</div>
+        <div class="flow-val green">$0.58</div>
+      </div>
+    </div>
+    <p class="small">Winning formula: Contrarian hook + Customer voice + Fast pacing + Anti-wellness humor</p>
+  </div>
+
+  <!-- SLIDE 7: Before / After -->
+  <div class="slide">
+    <h3 class="dim" style="margin-bottom:8px;">THE DIFFERENCE</h3>
+    <h2>Marketing intern vs <span class="blue">HookLoop</span></h2>
+    <table class="compare">
+      <tr><th></th><th>Marketing Intern</th><th>HookLoop</th></tr>
+      <tr><td>Reels tested per month</td><td class="old">3</td><td class="new">27+</td></tr>
+      <tr><td>Time to find winning creative</td><td class="old">2-3 months</td><td class="new">3 weeks</td></tr>
+      <tr><td>Optimization metric</td><td class="old">CPC (vanity)</td><td class="new">CAC (real customers)</td></tr>
+      <tr><td>Budget allocation</td><td class="old">Gut feeling</td><td class="new">Thompson sampling</td></tr>
+      <tr><td>Creative iteration</td><td class="old">Manual briefs</td><td class="new">AI-generated from data</td></tr>
+      <tr><td>Attribution</td><td class="old">"The blue one did better"</td><td class="new">Per-dimension CAC delta %</td></tr>
+      <tr><td>Cost</td><td class="old">$4,500/mo salary</td><td class="new">$49/mo + API costs</td></tr>
+    </table>
+  </div>
+
+  <!-- SLIDE 8: Tech Stack -->
+  <div class="slide">
+    <h3 class="dim" style="margin-bottom:8px;">BUILT WITH</h3>
+    <h2>Tech Stack</h2>
+    <div class="stats" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="stat">
+        <div class="num" style="font-size:28px;">Convex</div>
+        <div class="label">Real-time backend<br>Reactive queries</div>
+      </div>
+      <div class="stat">
+        <div class="num" style="font-size:28px;">Next.js</div>
+        <div class="label">App Router<br>TypeScript</div>
+      </div>
+      <div class="stat">
+        <div class="num" style="font-size:28px;">GPT-4o</div>
+        <div class="label">3 AI agents<br>Structured output</div>
+      </div>
+      <div class="stat">
+        <div class="num" style="font-size:28px;">Sora 2</div>
+        <div class="label">Video generation<br>9:16 reels</div>
+      </div>
+    </div>
+    <p class="subtitle" style="font-size:16px; margin-top:32px;">
+      Convex reactivity is the backbone — metrics stream into the dashboard in real-time as the simulator runs.<br>
+      No polling. No WebSockets. Just useQuery.
+    </p>
+  </div>
+
+  <!-- SLIDE 9: CTA -->
+  <div class="slide">
+    <h1>Hook<span class="blue">Loop</span></h1>
+    <p class="subtitle">Stop guessing which ad works.<br>Let the loop find it for you.</p>
+    <div class="cta-box">
+      <p style="font-size:18px; color:rgba(255,255,255,0.6);">Try the live demo</p>
+      <a href="/">Launch HookLoop</a>
+    </div>
+    <p class="small">Steven Yang & Nori &middot; Convex Hackathon 2026</p>
+  </div>
+
+</div>
+
+<div class="nav">
+  <span class="counter" id="counter">1 / 9</span>
+  <button onclick="prev()">&larr;</button>
+  <button onclick="next()">&rarr;</button>
+</div>
+<div class="hint">Arrow keys or click to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  function show(n) {
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    document.getElementById('counter').textContent = `${current + 1} / ${slides.length}`;
+    document.getElementById('progress').style.width = `${((current + 1) / slides.length) * 100}%`;
+  }
+
+  function next() { show(current + 1); }
+  function prev() { show(current - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  // Click anywhere (not buttons) to advance
+  document.getElementById('deck').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+    next();
+  });
+</script>
+
+</body>
+</html>
