@@ -1,81 +1,211 @@
-# NORI.md — Backend + AI Owner
+# NORI.md — Infra + Backend Owner (HypoCycle)
 
-Working on `main`. Read `CLAUDE.md` first.
+Read `PRD.md` first — it supersedes the old HookLoop scope. This file is your work
+plan for migrating the backend from HookLoop to HypoCycle. Work on the `nori`
+branch; push every ~30 minutes.
+
+**Status: Migration not started.** Everything below the "Legacy" section is the
+old HookLoop state, kept for reference — the code it describes still runs and is
+the baseline we migrate from (PRD §19: evolve, don't discard).
 
 ---
 
-## Phase 1: COMPLETE | Phase 2: COMPLETE
+## Your role
 
-All backend work is done and validated end-to-end with a real OpenAI key.
+You own the **control plane, execution plane, and every external integration**:
 
----
+- Convex schema, queries, mutations, actions, scheduled jobs
+- Agent orchestration (hypothesis agent, treatment builder, evaluation agent)
+- Daytona sandbox execution
+- Braintrust tracing + evaluation ingestion
+- Fireworks AI inference + audience simulation
+- ElevenLabs voice variants (Phase 3)
+- CodeRabbit review integration (Phase 2)
+- WorkOS auth, organizations, roles, approval policies
+- Budgets, guardrails, state machine, audit log
+
+Steven owns everything the user sees. He calls only the contract functions listed
+at the bottom. If he needs a new one, he tells you in chat — he does not write it.
 
 ## Files you own
 
 ```
-convex/schema.ts                      (6 original tables + agent_reasoning + bandit_allocations)
-convex/products.ts
-convex/variants.ts
-convex/metrics.ts
-convex/hypotheses.ts
-convex/experiments.ts                 (startBatch + startNextBatch + getStatus)
-convex/agents.ts                      (3 internalActions + error handling)
-convex/simulator.ts                   (bandit-driven day-by-day + allocationsByBatch)
-lib/agents/prompts.ts
-lib/agents/schemas.ts
-lib/simulator/dnaWeights.ts
-lib/simulator/runCampaign.ts
-lib/bandit.ts
+convex/**                         (all of it, including new tables/functions)
+lib/agents/**                     (hypothesis / treatment / evaluation agents)
+lib/simulator/**                  (legacy heuristic sim → becomes ad-template evaluator)
+lib/bandit.ts                     (→ optional adaptive-allocation policy)
+lib/integrations/**               (NEW — daytona.ts, braintrust.ts, fireworks.ts,
+                                   elevenlabs.ts, coderabbit.ts, workos.ts)
+lib/video/**                      (legacy Sora; keep working inside ad template)
 ```
 
-**Do NOT touch** `app/**`, `components/**`, `lib/types.ts`, `lib/mockData.ts`.
+**Do NOT touch** `app/**`, `components/**`, `lib/types.ts`, `lib/mockData.ts`,
+`tailwind.config.ts`.
+
+Coordinate in chat before editing `package.json`, `.env.local`, `README.md`,
+`CLAUDE.md`.
 
 ---
 
-## What shipped (summary)
+## Phase 0 — Rename + Domain Foundation (PRD §20, DO THIS FIRST)
 
-### Phase 1 (original tasks 1-10)
-- Schema, all queries/mutations per CLAUDE.md contract
-- 3 agents with strict JSON output, data-seeded prompts
-- DNA weights with documented priors
-- Pure seeded simulator
-- Thompson sampling bandit with CVR-floor kill gate
-- Full loop orchestration via Convex scheduler
+Goal: the existing ad demo runs through the *generic* cycle model with zero
+feature regression. No new integrations yet.
 
-### Phase 2 (N1-N5)
-- **N1:** Bandit drives day-over-day budget reallocation. `bandit_allocations` table + `allocationsByBatch` query for dashboard.
-- **N2:** Analyst marks run complete (not simulator). Run stays "running" through analysis.
-- **N3:** `startNextBatch` mutation for batch 2+. Strategist seeds from prior batch performance + analyst's nextBatchBrief.
-- **N4:** `status: "failed"` + `error` field in getStatus. Agent actions catch OpenAI failures and mark run failed.
-- **N5:** Full e2e validation with real OpenAI key. All checks pass.
+- [ ] **N0.1 — New schema.** Replace ad-only tables with the PRD §11 domain model:
+      `organizations`, `memberships`, `projects`, `programs`, `cycles`,
+      `observations`, `hypotheses`, `plans`, `variants`, `executions`,
+      `artifacts`, `evaluations`, `findings`, `reviews`, `approvals`,
+      `adoptions`, `audit_events`. Every row carries `orgId`, timestamps,
+      actor identity, and version/provenance fields. Ad-specific fields
+      (hookType, voice, pacing, videoUrl…) move into a typed
+      `variant.config` / `artifact` payload for the ad template — do not keep
+      parallel ad-only tables (PRD §19.1).
+- [ ] **N0.2 — Lifecycle state machine.** One module owning the PRD §12 states
+      (`draft → ready → provisioning → running → evaluating → decision_ready →
+      awaiting_review → awaiting_approval → adopted/rejected/inconclusive`, plus
+      `failed / cancelled / invalid / budget_exhausted / guardrail_stopped`).
+      Transitions are idempotent, authorized, timestamped, audit-logged.
+- [ ] **N0.3 — Generalize the loop.** `experiments.startBatch` →
+      `cycles.start(programId)`. Strategist/Generator/Analyst become
+      hypothesis agent / treatment builder / evaluation agent operating on
+      generic plans+variants. The heuristic simulator becomes the *evaluator
+      suite of the ad template*, not a hardcoded pipeline step.
+- [ ] **N0.4 — Ad template preserved.** The current FocusFlow demo runs end to
+      end through programs/cycles/variants/executions. Simulated metrics are
+      typed as `simulated` (never presented as real — PRD §18.1). Thompson
+      bandit becomes an opt-in adaptive-allocation policy on the plan.
+- [ ] **N0.5 — Migration + naming sweep.** Migrate existing batches into the
+      new tables (use the convex-migration-helper skill). Rename
+      HookLoop→HypoCycle in backend strings. Replace "reasoning" fields with
+      `rationale` / activity / evidence summaries (PRD §19.1 — no
+      chain-of-thought claims).
+- [ ] **N0.6 — Integration interface stubs.** `lib/integrations/*` adapter
+      interfaces with normalized job states (queued/provisioning/running/
+      evaluating/complete/failed/cancelled), usage, cost, provenance. Stub
+      implementations are fine in Phase 0; the shape is the contract.
 
-### Contract additions (beyond CLAUDE.md)
-1. `agent_reasoning` table + `agents.reasoningByBatch` query
-2. `bandit_allocations` table + `simulator.allocationsByBatch` query
-3. `experiments.getStatus` returns `{ status, phase, progress, error }`
-4. `experiments.startNextBatch({ productId, priorBatchId })` mutation
-5. `experiment_runs` has `status: "failed"` + optional `error` field
-6. `openai ^6` in package.json
+**Exit:** old demo works through generic models; Steven's UI compiles against
+the new contract functions.
 
-### Correctness checks — all passing
-- [x] Bandit gated on CVR floor
-- [x] Simulator internally consistent (CPC = spend/clicks, CAC = spend/conversions)
-- [x] DNA weights documented with rationale
-- [x] No randomness without a seed
-- [x] OpenAI calls handle rate limits + retries
-- [x] Analyst attribution names specific dimensions
+## Phase 1 — Closed-Loop Experiment MVP (PRD §20)
 
-### E2E validation (2026-06-27)
-Validated against batch `batch_c69c64b7-...` (product "FocusFlow"):
-- 7 hypotheses, 8 variants, 24 metric rows across 3 days
-- Budget: day 1 even 12% each → day 3: 5 survivors at 31/22/19/16/12%, 3 killed
-- 29 dimension attribution entries (e.g. benefit CAC +180%, shock-stat -45%)
+- [ ] **N1.1 — WorkOS AuthKit** (see `.claude/skills/convex-setup-auth/references/workos-authkit.md`).
+      Organizations, org switching, roles (Admin / Experiment Owner / Operator /
+      Approver / Viewer). **Server-side authorization on every function** —
+      CopilotKit/UI is never the authorization boundary (PRD §13.5).
+- [ ] **N1.2 — Programs & objectives.** CRUD for programs with primary metric,
+      guardrails, budget, stop conditions, versioned baseline, approval policy.
+      Validate measurability; reject ambiguous objectives.
+- [ ] **N1.3 — Hypothesis engine.** Structured hypotheses (claim, observation,
+      intervention, expected effect, **falsification condition**, risks, cost,
+      confidence — PRD §9.2), ranked; manual create/edit/lock. Execution is
+      blocked without an expected result + falsification condition.
+- [ ] **N1.4 — Experiment designer backend.** Immutable control + treatments,
+      structured variable diff, repetitions/concurrency/timeout/seed,
+      evaluator config, hard guardrails, early-stop rules, cost estimate.
+      Block multi-variable uncontrolled changes unless explicitly overridden.
+- [ ] **N1.5 — Daytona execution.** One sandbox per execution unit, pinned
+      environment (commit, image, lockfiles, model config, input snapshot),
+      resource/network/secret policies, live status+log+cost streaming into
+      Convex, retention cleanup. Retry infra failures; never silently retry
+      invalid experiment outcomes (PRD §10.5).
+- [ ] **N1.6 — Fireworks inference.** Parallel treatment inference; record
+      model, params, seed, tokens, latency, cost; org+budget rate limits.
+- [ ] **N1.7 — Braintrust.** Every execution emits a trace with stable
+      project/experiment/run/variant IDs linked to hypothesis + environment +
+      dataset versions. Store external refs + normalized metrics in Convex.
+- [ ] **N1.8 — Evidence engine.** Aggregate primary metric, guardrail
+      pass/fail, cost/latency, variance/CI, pairwise control-vs-treatment.
+      Result ∈ {supported, refuted, inconclusive, invalid}. A winner is only
+      recommendable if **all hard guardrails pass** (guardrails are
+      constraints, not weights — PRD §8.6).
+- [ ] **N1.9 — Next cycle from evidence.** Next-cycle brief generated from
+      findings; new hypotheses cite prior experiment IDs and state whether they
+      exploit / investigate / resolve / generalize / challenge (PRD §9.7).
+- [ ] **N1.10 — CopilotKit backend actions.** Grounded actions for create/refine
+      hypotheses and plans, pause/resume/cancel/rerun/approve — every action
+      revalidated server-side against role + policy.
+
+## Phase 2 — Governed Adoption
+
+- [ ] **N2.1** Artifact diffs for code/policy changes; rollback metadata.
+- [ ] **N2.2** CodeRabbit review dispatch + webhook ingestion (signed,
+      idempotent); unresolved blocking findings = adoption failure.
+- [ ] **N2.3** WorkOS approval policy resolution + gating; no adoption without
+      required approvals.
+- [ ] **N2.4** Immutable audit log covering role changes, run control,
+      approvals, secret access, adoption.
+
+## Phase 3 — Multimodal (only after 0–2)
+
+- [ ] **N3.1** ElevenLabs voice variants with consent/provenance metadata.
+- [ ] **N3.2** Fireworks synthetic audience panels — always labeled synthetic.
 
 ---
 
-## Nothing remaining for Nori
+## Non-negotiables (from PRD §8, §14)
 
-Backend is feature-complete. Waiting on Steven for:
-- "Run Next Batch" button (uses `startNextBatch`)
-- Failed state UI (uses `status: "failed"` + `error`)
-- BudgetAllocator using `allocationsByBatch` (optional upgrade)
+- Falsifiable before executable; control before optimization.
+- Default-deny sandbox network; short-lived scoped credentials only.
+- Org isolation enforced on **every** query/mutation/job/webhook/artifact URL.
+- Idempotent orchestration + callbacks; failures become visible states, never
+  permanently-running experiments.
+- Synthetic data, model judgments, and human judgments labeled distinctly.
+- Reproducibility metadata on every execution (PRD §15.3 checklist).
+
+---
+
+## Contract with Steven (Phase 0/1 surface)
+
+Steven builds against these. Extend in chat, not unilaterally. Legacy functions
+(`products.*`, `experiments.startBatch`, `metrics.liveMetrics`,
+`agents.reasoningByBatch`, `simulator.allocationsByBatch`) keep working until
+Steven finishes migrating each screen, then get deleted together.
+
+### Queries (reactive)
+```ts
+orgs.listMine()                             // orgs + role for switcher
+programs.list({ projectId })                // program dashboard
+programs.getById({ programId })             // objective, baseline, budget, findings
+cycles.listByProgram({ programId })         // cycle timeline
+cycles.getStatus({ cycleId })               // { state, phase, progress, error, budget }
+hypotheses.listByCycle({ cycleId })         // ranked, with falsification conditions
+plans.getByCycle({ cycleId })               // control/treatment diff, evaluators, cost est
+executions.listByCycle({ cycleId })         // live sandbox status, logs, cost per variant
+evaluations.listByCycle({ cycleId })        // scores + evaluator versions
+findings.getByCycle({ cycleId })            // evidence report payload
+approvals.listPending({ orgId })            // approval inbox
+audit.list({ orgId, filters })              // audit log screen
+```
+
+### Mutations
+```ts
+programs.create(input)                      // → programId
+hypotheses.update / lock / reject
+plans.approve({ planId })                   // launch-readiness gate
+cycles.start({ programId })                 // → cycleId (triggers full loop)
+cycles.control({ cycleId, action })         // pause | resume | cancel
+approvals.decide({ approvalId, decision })  // approve | reject | request_changes | rerun
+```
+
+---
+
+# Legacy — HookLoop state (reference only)
+
+Everything below describes the shipped HookLoop backend, which is the migration
+baseline. All of it was validated e2e with a real OpenAI key on 2026-06-27.
+
+- Schema: 6 original tables + `agent_reasoning` + `bandit_allocations`
+- 3 agents (Strategist/Generator/Analyst) with strict JSON output
+- DNA weights with documented priors; pure seeded simulator
+- Thompson sampling bandit gated on CVR floor
+- `startNextBatch` for batch 2+; failed-state handling in `getStatus`
+- Sora video generation in `convex/video.ts` + `lib/video/**`
+- E2E: 7 hypotheses, 8 variants, 24 metric rows, bandit reallocation
+  12%-even → 31/22/19/16/12 with 3 kills, 29 attribution entries
+
+PRD §19 mapping: product→program, batch→cycle, ad variant→variant,
+campaign sim→execution+evaluator suite, Thompson→optional adaptive policy,
+Strategist→hypothesis agent, Generator→treatment builder, Analyst→evaluation
+agent, reasoning→rationale/evidence.
