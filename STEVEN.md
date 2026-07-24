@@ -160,7 +160,7 @@ Build order = demo-value order. Reuse legacy components where they map
 
 ## Phase 3 — Multimodal polish
 
-- [ ] **S3.1** Audio variant player for ElevenLabs artifacts (with synthetic +
+- [ ] **S3.1** Audio variant player for voice artifacts (provider TBD; with synthetic +
       provenance labels).
 - [ ] **S3.2** Synthetic-audience panel results view — unmistakably labeled
       simulated.

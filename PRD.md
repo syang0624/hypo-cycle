@@ -21,7 +21,7 @@ Instead of asking an agent for a one-shot answer, a user gives HypoCycle an obje
 6. Adopt, reject, or revise the proposed change.
 7. Use the evidence to plan the next cycle.
 
-Every experiment runs in an isolated Daytona sandbox. Braintrust records traces, datasets, scores, and evaluation results. Fireworks AI provides low-latency parallel inference and simulated audience responses. ElevenLabs creates voice and conversational variants when audio is part of an experiment. CopilotKit provides the human control surface. CodeRabbit reviews agent-generated code and policy changes before adoption. WorkOS provides enterprise authentication, organizations, roles, and approval controls.
+Every experiment runs in an isolated Daytona sandbox. Braintrust records traces, datasets, scores, and evaluation results. Fireworks AI provides low-latency parallel inference and simulated audience responses. CopilotKit provides the human control surface. CodeRabbit reviews agent-generated code and policy changes before adoption. WorkOS provides enterprise authentication, organizations, roles, and approval controls.
 
 The first release will generalize HookLoop’s existing marketing experiment loop into a reusable system for testing prompts, agents, code, policies, workflows, and generated content. The existing ad-creative use case remains the first end-to-end template and demo.
 
@@ -95,7 +95,7 @@ The MVP is successful when a user can:
 - Automatically deploying changes to production without an explicit organization policy.
 - Supporting arbitrary physical-world experiments.
 - Guaranteeing causal conclusions when the experiment design or sample size is insufficient.
-- Replacing Braintrust, Daytona, Fireworks AI, ElevenLabs, CodeRabbit, CopilotKit, or WorkOS with in-house equivalents.
+- Replacing Braintrust, Daytona, Fireworks AI, CodeRabbit, CopilotKit, or WorkOS with in-house equivalents.
 - Supporting every model provider or sandbox provider in the first release.
 - Fully autonomous multi-objective optimization across unrelated projects.
 
@@ -322,7 +322,7 @@ Priority definitions:
 
 ### 10.7 Voice and Conversation Experiments
 
-- **P1:** Generate ElevenLabs voice variants from versioned scripts and voice settings.
+- **P1:** Generate provider-agnostic voice variants from versioned scripts and voice settings.
 - **P1:** Store audio artifacts with consent, provenance, model, voice, and configuration metadata.
 - **P1:** Run multi-turn conversational variants against a fixed scenario suite.
 - **P1:** Evaluate transcription accuracy, task success, latency, interruption behavior, tone, and policy compliance.
@@ -448,10 +448,9 @@ Daytona is the only supported MVP execution environment. The control plane creat
 
 Braintrust is the canonical trace and evaluation system. HypoCycle stores stable external references plus the normalized metrics needed for comparison, policy evaluation, and the product UI.
 
-### 13.4 Inference and Media Plane
+### 13.4 Inference Plane
 
 - Fireworks AI: high-concurrency text/model inference and synthetic audience simulation.
-- ElevenLabs: speech generation and conversational audio variants.
 
 Provider adapters must normalize request status, usage, cost, provenance, errors, and retries without hiding provider-specific metadata needed for reproducibility.
 
@@ -659,7 +658,7 @@ HypoCycle should evolve the current product rather than discard its working loop
 
 ### Phase 3: Multimodal and Simulation Expansion
 
-- ElevenLabs voice and conversation variants
+- Provider-agnostic voice and conversation variants
 - Fireworks audience panels
 - Human rating workflows
 - Template library

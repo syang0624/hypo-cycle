@@ -64,7 +64,7 @@ first experiment template and demo (PRD §18.1).
 - **Execution plane**: Daytona sandboxes (only supported execution env)
 - **Observability/eval**: Braintrust (canonical traces + evaluations)
 - **Inference/media**: Fireworks AI (parallel inference, audience simulation),
-  ElevenLabs (voice variants, Phase 3), OpenAI/Sora (legacy ad-template video)
+  provider-agnostic voice (Phase 3), OpenAI/Sora (legacy ad-template video)
 - **Governance**: WorkOS (auth, orgs, roles, approvals), CodeRabbit (diff
   review before adoption)
 
@@ -95,7 +95,7 @@ convex/**
 lib/agents/**
 lib/simulator/**      (legacy sim → ad-template evaluator)
 lib/bandit.ts         (→ optional adaptive-allocation policy)
-lib/integrations/**   (daytona, braintrust, fireworks, elevenlabs,
+lib/integrations/**   (daytona, braintrust, fireworks, voice,
                        coderabbit, workos adapters)
 lib/video/**
 ```
@@ -216,7 +216,7 @@ dispatch, webhook handlers.
 - Training or fine-tuning foundation models
 - A notebook, data warehouse, or CI/CD replacement
 - Auto-deploy to production without an explicit org policy
-- In-house replacements for Daytona, Braintrust, Fireworks, ElevenLabs,
+- In-house replacements for Daytona, Braintrust, Fireworks,
   CopilotKit, CodeRabbit, or WorkOS
 - Additional model/sandbox providers beyond the canonical set
 - Causal-certainty claims when design or sample size can't support them
@@ -234,7 +234,7 @@ If you find yourself building any of the above, stop.
   Daytona execution, Fireworks, Braintrust, evidence report, next cycle.
 - **Phase 2** — Governed adoption: diffs, CodeRabbit, approval policies,
   rollback metadata, audit log.
-- **Phase 3** — Multimodal: ElevenLabs voice, audience panels, templates.
+- **Phase 3** — Multimodal: provider-agnostic voice, audience panels, templates.
 
 Task-level breakdowns live in NORI.md (backend) and STEVEN.md (frontend).
 

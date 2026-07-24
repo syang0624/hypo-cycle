@@ -93,7 +93,7 @@ You own the **control plane, execution plane, and every external integration**:
 - Daytona sandbox execution
 - Braintrust tracing + evaluation ingestion
 - Fireworks AI inference + audience simulation
-- ElevenLabs voice variants (Phase 3)
+- Voice variants, provider TBD (Phase 3 — ElevenLabs removed from the PRD roadmap 2026-07-24)
 - CodeRabbit review integration (Phase 2)
 - WorkOS auth, organizations, roles, approval policies
 - Budgets, guardrails, state machine, audit log
@@ -109,7 +109,7 @@ lib/agents/**                     (hypothesis / treatment / evaluation agents)
 lib/simulator/**                  (legacy heuristic sim → becomes ad-template evaluator)
 lib/bandit.ts                     (→ optional adaptive-allocation policy)
 lib/integrations/**               (NEW — daytona.ts, braintrust.ts, fireworks.ts,
-                                   elevenlabs.ts, coderabbit.ts, workos.ts)
+                                   voice.ts (provider TBD), coderabbit.ts, workos.ts)
 lib/video/**                      (legacy Sora; keep working inside ad template)
 ```
 
@@ -213,7 +213,7 @@ the new contract functions.
 
 ## Phase 3 — Multimodal (only after 0–2)
 
-- [ ] **N3.1** ElevenLabs voice variants with consent/provenance metadata.
+- [ ] **N3.1** Provider-agnostic voice variants with consent/provenance metadata.
 - [ ] **N3.2** Fireworks synthetic audience panels — always labeled synthetic.
 
 ---
