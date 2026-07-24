@@ -1,5 +1,10 @@
 # Weekly Loop Redesign Implementation Plan
 
+> **Archived July 24, 2026.** This plan describes the former live experiment
+> architecture and is retained as design history only. The current app is a
+> frontend-only demo with static weekly data and bundled reels; its commands and
+> file paths are no longer an implementation checklist.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn the HookLoop demo into a sequential, feedback-driven weekly loop where reels evolve each week, CPC visibly drops, every phase reveals in strict order (reel before CPC), and each week ends with a hypothesis-vs-verdict report.

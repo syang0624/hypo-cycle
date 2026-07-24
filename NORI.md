@@ -10,6 +10,18 @@ the baseline we migrate from (PRD §19: evolve, don't discard).
 
 ---
 
+> **MERGE NOTE (2026-07-24, evening):** Your `nori` branch commit `2553350`
+> ("convert HookLoop to local demo") deleted the Convex backend and the live
+> frontend and archived this file. Steven merged both branches to `main` as a
+> **union**: the live app + backend are restored, and your static demo now
+> lives at **`/demo`** (linked from the landing page), with the Braintrust
+> instrumentation (`instrumentation.ts`, `next.config.mjs`, `braintrust` dep)
+> and your narrative docs (PROGRESS-REPORT, SUBMISSION, STEVEN-VIDEO) kept.
+> Your demo-only rewrites of CLAUDE.md / AGENTS.md / PRD.md / this file were
+> **not** taken because they described the backend as nonexistent, which is no
+> longer true on `main`. If demo-only was a deliberate direction change you
+> and Steven agreed on, talk to Steven before building on either version.
+
 ## Frontend status — read before touching the contract (Steven, 2026-07-24)
 
 Steven finished his Phase 0 (rename, re-route, language sweep), a full UI

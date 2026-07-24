@@ -1,74 +1,94 @@
 # HookLoop
 
-## Problem We're Solving
+## What it demonstrates
 
-Brands burn **$190B annually** on paid ads that don't convert. The root cause: marketing teams optimize for **CPC (Cost Per Click)** — cheap attention — instead of **CAC (Cost to Acquire a Customer)** — actual revenue.
+HookLoop is an interactive product demo for a CAC-first ad experimentation
+workflow. It shows how a hypothetical autonomous system could test creative
+ideas, identify weak reels, carry learnings into the next week, and explain the
+winning creative pattern.
 
-A curiosity-hook reel might get millions of clicks at $0.10 CPC, but if nobody buys, that money is gone. Meanwhile, the team tested 3 creatives this month, picked the "best" one based on gut feeling, and moved on. No systematic experimentation. No feedback loop. Just vibes.
+The current build is intentionally deterministic and frontend-only. It does not
+run live agents, purchase ads, or stream new experiment data.
 
-Creative fatigue compounds the problem — ads that worked last month silently stop converting. By the time someone notices, thousands are wasted.
+## Problem
 
-## How the App Works
+Marketing teams often optimize for cheap clicks instead of acquired customers.
+A reel can produce a low CPC while attracting people who never convert. Small
+teams also test too few creative variants to learn which hook, voice, pacing, or
+scenario caused the result.
 
-HookLoop is an **autonomous ad experimentation agent**. You input your product and budget. The system does the rest:
+HookLoop demonstrates a more systematic approach: optimize for CAC, keep a CVR
+quality floor, and use each week’s evidence to shape the next creative round.
 
-1. **AI Strategist** analyzes your product and generates testable hypotheses (e.g., "contrarian hooks outperform benefit hooks for Gen Z")
-2. **AI Generator** produces 8 unique short-form video reels using **Sora 2**, each testing a different creative DNA combination (hook type, voice, pacing, CTA)
-3. **Campaign Simulator** runs a 3-day experiment with real budget allocation. Metrics stream into the dashboard in real-time via Convex reactivity
-4. **Thompson Sampling Bandit** reallocates budget between reels — killing underperformers (high CPC, low conversion) and scaling winners. The kill gate is on **CVR (conversion rate)**, not click rate, so the system can't be fooled by cheap clicks
-5. **AI Analyst** explains what worked and why — attributing performance to specific creative dimensions ("narrator voice reads as corporate to Gen Z — CAC +180%")
-6. **The loop repeats** — new reels are generated from revised hypotheses, each batch measurably better than the last
+## Demo flow
 
-In our Coca-Cola demo: **9 reels tested across 3 weeks, CPC dropped 44% ($1.04 to $0.58), CAC dropped 60%**. The winning formula (contrarian hook + customer voice + anti-wellness humor) was discovered automatically — no human creative direction needed.
+The bundled Coca-Cola scenario contains three weeks and nine reels:
 
-## Notable Features
+1. **Week 1 — Initial test:** compare pain-point, statistic, and contrarian
+   directions.
+2. **Week 2 — Apply learnings:** focus on customer voice and irreverent,
+   anti-wellness framing.
+3. **Week 3 — Optimize the scenario:** test gym, date-night, and office
+   variations of the winning formula.
 
-- **Real AI-generated video reels** — Sora 2 produces vertical 9:16 MP4 reels from AI-written scripts. Each reel has distinct creative DNA (hook type, voice style, pacing, music, CTA)
-- **CAC-first optimization** — the bandit is gated on a CVR floor. High-CTR but low-converting reels get killed, not scaled. This is the core design principle that prevents the system from buying garbage clicks
-- **Live-streaming dashboard** — Convex reactive queries update the UI in real-time as the simulator inserts metrics day-by-day. No polling, no WebSockets — just `useQuery`
-- **Week-over-week iteration** — each batch generates entirely new creative from revised hypotheses. The strategist seeds from the prior batch's analyst brief, so the system genuinely learns from itself
-- **Thompson sampling with CVR kill gate** — seeded PRNG for reproducible results, batch-relative threshold (kills variants below 55% of the best performer's CVR)
-- **Per-dimension attribution** — the analyst outputs `cacDeltaPct` per creative dimension, so you know exactly which hook type / voice / pacing combo drives CAC down
+Users can switch between weeks, play the local reels, inspect CPC and CAC, see
+which variants were cut or marked best, and read the corresponding hypothesis
+and analysis.
 
-## Why We Built This
+## Sample campaign result
 
-We've watched startups and brands waste money on ad creative that "feels right" but doesn't convert. The gap isn't creative talent — it's **experimentation infrastructure**.
+| Metric | Week 1 | Week 2 | Week 3 | Change |
+| --- | ---: | ---: | ---: | ---: |
+| Average CPC | $1.04 | $0.78 | $0.62 | -40% average |
+| Best reel CPC | $0.82 | $0.71 | $0.58 | -29% |
+| Average CAC | $4.65 | $2.98 | $2.07 | -55% |
+| Best reel CAC | $2.95 | $2.40 | $1.85 | -37% |
 
-No one runs 27 ad variants in 3 weeks and systematically attributes which creative dimension drove the result. That's what a machine should do. HookLoop replaces the manual cycle of brief-produce-launch-wait-analyze with a self-driving loop that gets measurably better each iteration.
+The summary card reports a 44% reduction from the starting average CPC to the
+final winning reel CPC, and a 60% reduction from the starting average CAC to the
+final winning reel CAC.
 
-The thesis: **the best ad creative isn't designed — it's discovered through systematic experimentation.**
+Winning formula:
 
-## Tech Stack
+> Contrarian hook + customer voice + fast pacing + anti-wellness humor
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Recharts
-- **Backend**: Convex (database, real-time queries, scheduled functions, file storage)
-- **AI Agents**: OpenAI GPT-4o with strict structured outputs (JSON schema) — 3 agents (Strategist, Generator, Analyst)
-- **Video Generation**: OpenAI Sora 2 — vertical 9:16 reels, ~4s each
-- **Optimization**: Thompson sampling bandit (Beta posterior, Marsaglia-Tsang gamma sampling, seeded PRNG)
-- **Design System**: Bento grid layout inspired by Canva, 24px radius cards, SF Pro typography
+These numbers are sample campaign fixtures for demonstration, not claims from a
+live ad platform.
 
-Convex is the backbone — its reactivity means metrics stream into the dashboard the instant the simulator writes them. The day-by-day campaign simulation uses `scheduler.runAfter(2000, ...)` to create visible delays, and each write triggers a live UI update via `useQuery`. This is the "Best Use of Convex" in action.
+## Notable product ideas
 
-## Challenges We Ran Into
+- CAC-first creative evaluation
+- Visible killed, running, and winning variants
+- Week-over-week hypothesis refinement
+- Per-reel performance comparison
+- Clear narrative explanation of why a creative direction won
+- Local video playback with a resilient generated-preview fallback
 
-- **CPC vs CAC tension in the bandit**: Early versions optimized CPC, which learned to buy cheap but useless clicks. We fixed this by gating the Thompson sampling allocation on a CVR floor — variants must convert above a threshold to receive budget, regardless of their click rate
-- **OpenAI strict mode constraints**: `perDimensionAttribution` had to be an array of `{dimension, value, cacDeltaPct}` instead of a nested map, because strict JSON schema mode doesn't support dynamic keys. This turned out to be a better design anyway
-- **Sora API integration**: The Videos API has different parameter names than documented (`seconds` vs `duration`, model is `sora-2` not `sora`). We built a provider abstraction so the video source is a single swap point
-- **Parallel development**: Steven (frontend) and Nori (backend) worked on separate branches with a strict file ownership contract. The Convex schema was the source of truth, and contract changes were flagged via `TODO(other-person)` comments
-- **Demo realism**: Showing all 8 reels simultaneously looked fake. We restructured the dashboard into a week-by-week timeline where each iteration generates new creative from revised hypotheses, with real Sora videos cached locally for instant demo playback
+## Implementation
 
-## Success Stories & Metrics
+- Next.js 14 App Router
+- React 18 and TypeScript
+- Tailwind CSS
+- Static campaign fixtures
+- Nine bundled vertical MP4 reels
+- No backend, database, authentication, scheduler, or required API key
 
-**Coca-Cola demo campaign (3 weeks, 9 reels):**
+## Run and verify
 
-| Metric | Week 1 | Week 2 | Week 3 | Improvement |
-|--------|--------|--------|--------|-------------|
-| Avg CPC | $1.04 | $0.78 | $0.58 | **-44%** |
-| Avg CAC | $4.65 | $2.98 | $1.85 | **-60%** |
-| Conversions | 1,149 | 2,295 | 3,860 | **+236%** |
+```bash
+npm install
+npm run dev
+```
 
-- **Bandit killed 2 variants** by Week 2 (narrator voice + statistic hook — read as "corporate ad" to Gen Z)
-- **Winner identified**: contrarian hook + customer voice + fast pacing ("My nutritionist said cut out soda...")
-- **29 dimension attributions** generated by the analyst (e.g., "benefit hook: CAC +180%", "shock-stat hook: CAC -45%")
-- **Budget concentration**: Day 1 even 12% each → Day 3 five survivors at 31/22/19/16/12%, three killed
-- **Full pipeline execution**: strategist → generator → simulator (3 days with 2s delays) → analyst — all self-chaining via Convex scheduler
+Open `http://localhost:3000` and choose **Explore Demo**.
+
+```bash
+npm run check:demo-only
+npm run build
+```
+
+## Scope boundary
+
+HookLoop currently demonstrates the user experience and product thesis. Product
+input, real campaign execution, AI orchestration, persistence, and live media
+generation would require a future backend architecture.

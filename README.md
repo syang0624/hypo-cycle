@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HypoCycle
 
-## Getting Started
+An autonomous experimentation platform that gives AI agents a scientific
+method. HypoCycle turns an objective into falsifiable hypotheses, runs
+controlled variants against a baseline, and adopts only what the evidence
+supports — cycle after cycle. See `PRD.md` for the full product vision and
+`CLAUDE.md` for the working architecture contract.
 
-First, run the development server:
+The repo currently ships **two surfaces**:
+
+1. **The live app** — the HookLoop-era ad-experimentation loop being migrated
+   to the HypoCycle domain model. Convex backend, three agents (hypothesis /
+   treatment / evaluation), seeded campaign simulator, Thompson-sampling
+   budget allocation, and a real-time dashboard. Start at `/programs/new`.
+2. **The self-contained demo** — a frontend-only walkthrough of a fixed
+   Coca-Cola three-week campaign with bundled reels; no backend or API keys
+   required. Start at `/demo` (data in `lib/demoReels.ts`, videos in
+   `public/reels/`).
+
+Campaign metrics in both surfaces are **simulated** and labeled as such —
+never live ad-platform results.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Explore the demo** needs nothing else — it is fully static.
+- **Start an experiment program** (the live loop) needs the Convex backend
+  running (`npx convex dev`) and an `OPENAI_API_KEY` in `.env.local`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Verify
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+`scripts/check-demo-only.mjs` asserts a demo-only repo layout; it applies to
+demo-only builds, not to this merged main branch.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Working docs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `CLAUDE.md` — architecture, rules of engagement, file ownership
+- `STEVEN.md` / `NORI.md` — per-owner migration work plans
+- `PRD.md` — HypoCycle product requirements
+- `PROGRESS-REPORT.md`, `SUBMISSION.md` — demo narrative and hackathon
+  submission materials

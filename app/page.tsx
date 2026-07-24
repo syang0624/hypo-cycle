@@ -64,6 +64,12 @@ export default function Home() {
             >
               Start an experiment program →
             </Link>
+            <Link
+              href="/demo"
+              className="rounded-lg border border-line bg-panel px-6 py-3 text-[14px] font-semibold text-foreground hover:border-primary/50 transition-colors"
+            >
+              Explore the demo
+            </Link>
             <ResumeCampaign />
             <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
               First template: ad-creative optimization
