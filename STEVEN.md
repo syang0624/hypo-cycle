@@ -103,6 +103,24 @@ For UI changes, smoke-test:
 4. Missing-video fallback behavior.
 5. Browser console errors on both surfaces.
 
+## Shipped on the live surface (2026-07-24, evening)
+
+Two PRD screens landed in legacy-contract scope (no new backend calls):
+
+- **Evidence report** (`components/WeeklyReport.tsx`, PRD §17.7): guardrail
+  pass/FAIL rows (CAC ≤ target, CPC ≤ max, from `products.getById`) rendered
+  as hard constraints; verdicts shown in finding-result language
+  (confirmed→supported); observed evidence (simulated, warn-labeled) visually
+  separated from system inference (verdicts + narrative, info-labeled).
+- **Cycle timeline** (`components/CycleTimeline.tsx`, PRD §17.9): lineage view
+  at the bottom of `/cycles/[cycleId]` — per week: state, hypotheses with
+  verdict chips, CPC/CAC evidence with deltas, and the directive that seeds
+  the next week.
+
+The full phased HypoCycle frontend plan (S-task list) predates the merge and
+lives in git history (`STEVEN.md` at commit `f826390`); revive tasks from
+there as the backend migration unblocks them.
+
 ## Architecture decision still required
 
 If the product is meant to remain demo-only, the restored live routes,

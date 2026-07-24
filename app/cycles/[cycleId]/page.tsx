@@ -7,6 +7,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Variant, Metric } from "@/lib/types";
 import WeekSection from "@/components/WeekSection";
+import CycleTimeline from "@/components/CycleTimeline";
 import BudgetAllocator from "@/components/BudgetAllocator";
 import DNAHeatmap from "@/components/DNAHeatmap";
 import MetricsChart from "@/components/MetricsChart";
@@ -82,6 +83,12 @@ function LiveDashboard({ batchId }: { batchId: string }) {
 
   const weeks = useQuery(
     api.experiments.weeksByProduct,
+    productId ? { productId } : "skip",
+  );
+  // Product row supplies the guardrail limits (target CAC, max CPC) for the
+  // evidence reports.
+  const product = useQuery(
+    api.products.getById,
     productId ? { productId } : "skip",
   );
 
@@ -262,9 +269,19 @@ function LiveDashboard({ batchId }: { batchId: string }) {
                     prevCpc={prev?.avgCpc ?? null}
                     prevCac={prev?.avgCac ?? null}
                     isActive={w.batchId === batchId}
+                    targetCac={product?.targetCAC}
+                    maxCpc={product?.maxCPC}
                   />
                 );
               })
+          )}
+
+          {/* Cycle timeline — the loop's lineage, hypothesis → evidence →
+              directive → next hypothesis (PRD §17.9) */}
+          {weeks && weeks.length > 0 && (
+            <Panel title="Cycle timeline" tone="primary">
+              <CycleTimeline weeks={weeks} activeBatchId={batchId} />
+            </Panel>
           )}
         </main>
 

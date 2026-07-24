@@ -33,12 +33,16 @@ export default function WeekSection({
   prevCpc,
   prevCac,
   isActive,
+  targetCac,
+  maxCpc,
 }: {
   batchId: string;
   week: number;
   prevCpc: number | null;
   prevCac: number | null;
   isActive: boolean;
+  targetCac?: number;
+  maxCpc?: number;
 }) {
   const hypotheses = useQuery(api.hypotheses.listByBatch, { batchId }) as Hypothesis[] | undefined;
   const variants = useQuery(api.variants.listByBatch, { batchId }) as Variant[] | undefined;
@@ -183,6 +187,8 @@ export default function WeekSection({
           prevCpc={prevCpc}
           prevCac={prevCac}
           variants={variants ?? []}
+          targetCac={targetCac}
+          maxCpc={maxCpc}
         />
       )}
     </div>
