@@ -1,156 +1,196 @@
-# HookLoop — Project Context for Claude Code
+# HypoCycle — Project Context for Claude Code
 
-This file is read by every Claude Code session in this repo. It defines what we're building, the rules of engagement, and the contracts between Steven and Nori. **Read this first, then read STEVEN.md or NORI.md depending on which branch you're on.**
+This file is read by every Claude Code session in this repo. It defines what
+we're building, the rules of engagement, and the contracts between Steven and
+Nori. **Read this first, then `PRD.md` for full requirements, then STEVEN.md or
+NORI.md depending on which branch you're on.**
+
+> **MIGRATION IN PROGRESS (since 2026-07-24).** This product was HookLoop, an
+> ad-creative experimentation demo. `PRD.md` pivots it into HypoCycle. Code you
+> find may still reflect HookLoop (products/batches/ad variants) — that legacy
+> loop is the migration baseline and must keep working until each piece is
+> replaced (PRD §19). NORI.md and STEVEN.md carry the phased task lists.
 
 ---
 
 ## What we're building
 
-HookLoop is an **autonomous paid-ad experimentation agent** for startups. A founder inputs their product, marketing budget, past reels, and CAC/CPC data. The agent generates creative hypotheses, produces short-form ad variants with structured metadata, builds a test plan with kill/scale rules, simulates the campaign, explains which creative variables drove CPC and CAC, and automatically generates the next batch.
+HypoCycle is an **autonomous experimentation platform that gives AI agents a
+scientific method**. A user defines an objective, constraints, and measurable
+success criteria; HypoCycle runs a closed learning loop:
 
-**This is not an AI reel generator.** It is a self-improving growth-engineering agent that happens to generate reels as one step in its loop. If you find yourself making the demo about pretty videos, stop and refocus on the loop.
+1. Observe the current state
+2. Generate falsifiable hypotheses
+3. Design controlled experiments (one immutable control + treatments)
+4. Execute variants in isolated Daytona sandboxes
+5. Evaluate against explicit metrics and guardrails (Braintrust)
+6. Adopt, reject, or revise — gated by review and approval policies
+7. Plan the next cycle from the evidence
 
-### The loop
+**This is not a one-shot generation tool.** The self-improving, evidence-driven
+loop is the product. The old HookLoop ad-creative workflow survives as the
+first experiment template and demo (PRD §18.1).
 
-1. User inputs product + budget + past creative
-2. Strategist agent analyzes and generates hypotheses
-3. Generator agent produces 8 ad variants with structured DNA metadata
-4. Experiment plan is created (budget allocation, kill/scale rules)
-5. Simulator runs a "3-day campaign"
-6. Analyst agent explains what worked and why, attributing performance to specific DNA dimensions
-7. Strategist generates the next batch from the brief
-8. Repeat
+### Non-negotiable design rules (PRD §8)
 
-### Non-negotiable design rules
-
-- **CAC is primary, CPC is secondary.** Never let the system optimize on CPC alone — that learns to buy garbage clicks. Bandit allocation is gated on a CVR floor.
-- **Three agents, not six.** Strategist, Generator, Analyst. Do not split further.
-- **Mode A only.** The hackathon demo runs the heuristic simulator. No live Meta/TikTok API calls.
-- **The simulator must be defensible.** Heuristic weights with documented priors + LLM commentary explaining the numbers. Not random noise dressed up.
-- **Convex is real-time-reactive.** Use `useQuery` for live dashboard updates. This is also the Best Use of Convex prize criterion ($1,000 first / $500 second) — design for it.
+- **Falsifiable before executable.** No hypothesis runs without an expected
+  result and a falsification condition.
+- **Control before optimization.** Every recommendation is compared against a
+  baseline under the same conditions.
+- **Guardrails are constraints, not weights.** A variant that violates a hard
+  guardrail cannot win, no matter how well it scores elsewhere.
+- **Isolation by default.** Generated/untrusted work runs in Daytona sandboxes
+  with scoped, short-lived credentials and default-deny network.
+- **Evidence over narrative.** Recommendations cite metrics, evaluator
+  versions, artifacts, and uncertainty. Never bare "the agent thinks X".
+- **No chain-of-thought claims.** Expose rationales, activity, and evidence —
+  not "reasoning streams" or private thoughts (PRD §2, §19.1).
+- **Synthetic is labeled synthetic.** Simulated metrics and model judgments are
+  visually and structurally distinct from real evidence, everywhere.
+- **Autonomy is policy-bound; humans retain control.** Server-side org, role,
+  budget, and approval enforcement on every action. The UI (including
+  CopilotKit) is never the authorization boundary.
+- **Reproducibility over convenience.** Every execution records plan/variant
+  versions, inputs, commit, environment, model config, seeds (PRD §15.3).
 
 ---
 
 ## Stack
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind, Recharts, lucide-react
-- **Backend**: Convex (database + actions + scheduled functions)
-- **AI**: OpenAI (GPT-class with structured outputs)
-- **Deploy target**: Local for hackathon demo; Vercel + Convex Cloud if time
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind, Recharts,
+  lucide-react, CopilotKit (conversational control surface)
+- **Control plane**: Convex (database + actions + scheduled functions),
+  real-time-reactive via `useQuery`
+- **Execution plane**: Daytona sandboxes (only supported execution env)
+- **Observability/eval**: Braintrust (canonical traces + evaluations)
+- **Inference/media**: Fireworks AI (parallel inference, audience simulation),
+  ElevenLabs (voice variants, Phase 3), OpenAI/Sora (legacy ad-template video)
+- **Governance**: WorkOS (auth, orgs, roles, approvals), CodeRabbit (diff
+  review before adoption)
+
+One canonical provider per capability — do not add alternates (PRD §21).
 
 ---
 
 ## File ownership (HARD RULE)
 
-Do not edit files outside your zone. If you need a contract change, leave a `// TODO(other-person):` comment and tell the other human.
+Do not edit files outside your zone. If you need a contract change, leave a
+`// TODO(other-person):` comment and tell the other human.
 
-### Steven owns
+### Steven owns (frontend)
 
 ```
 app/**
 components/**
 lib/types.ts          (shared — Steven owns the shape, Nori reads)
-lib/mockData.ts       (Steven only)
+lib/mockData.ts
 public/**
 tailwind.config.ts
 ```
 
-### Nori owns
+### Nori owns (infra/backend)
 
 ```
 convex/**
 lib/agents/**
-lib/simulator/**
-lib/bandit.ts
+lib/simulator/**      (legacy sim → ad-template evaluator)
+lib/bandit.ts         (→ optional adaptive-allocation policy)
+lib/integrations/**   (daytona, braintrust, fireworks, elevenlabs,
+                       coderabbit, workos adapters)
+lib/video/**
 ```
 
-### Both touch (coordinate in chat)
+### Both touch (coordinate in chat first)
 
 ```
-package.json          (only when adding deps — flag in chat first)
-.env.local            (only when adding env vars — flag in chat first)
+package.json          (only when adding deps)
+.env.local            (only when adding env vars)
 README.md
+CLAUDE.md
 ```
 
 ---
 
 ## Branching
 
-- `main` — clean, never push directly during Phase 1
-- `steven` — Steven's branch, frontend work
-- `nori` — Nori's branch, backend + AI work
+- `main` — clean; merge from work branches, don't push WIP directly
+- `steven` — frontend work
+- `nori` — backend + integrations work
 
-Commit often. Push to your branch every ~30 minutes so the other side can pull if they need a contract.
+Commit often. Push to your branch every ~30 minutes so the other side can pull
+if they need a contract.
 
 ---
 
-## The Convex schema (source of truth)
+## Domain model (source of truth: PRD §11)
 
-Both sides depend on this. It's already in `convex/schema.ts`. If it changes, both sides need to know.
+The target schema in `convex/schema.ts` (replacing the HookLoop ad-only
+tables as Nori lands Phase 0):
 
-```ts
-products: {
-  name, landingUrl, valueProp, targetCustomer, pricing, painPoint,
-  dailyBudget, totalBudget, maxCPC, targetCAC, goal
-}
-
-hypotheses: {
-  productId, batchId, text, reasoning
-}
-
-ad_variants: {
-  productId, batchId,
-  hookType, scriptType, voice, music, pacing, cta, audience,
-  script, hypothesis, budget, killRule, scaleRule,
-  videoStatus?: "pending" | "ready" | "failed",   // generated async (Sora)
-  videoUrl?, videoJobId?, videoError?
-}
-
-experiment_runs: {
-  productId, batchId, status: "running" | "complete", startedAt
-}
-
-campaign_metrics: {
-  variantId, batchId, day,
-  impressions, clicks, conversions, spend,
-  cpc, ctr, cac, cvr
-}
 ```
+organizations, memberships, projects,
+programs            (long-running objective: metrics, guardrails, budget, baseline, approval policy)
+cycles              (one hypothesis → execute → evaluate → decide loop)
+observations, hypotheses (claim + falsification condition, linked to evidence)
+plans               (versioned protocol: control + treatments, evaluators, stop rules)
+variants, executions (one sandboxed run of a variant)
+artifacts, evaluations, findings (supported | refuted | inconclusive | invalid)
+reviews, approvals, adoptions (with rollback metadata)
+audit_events        (immutable)
+```
+
+Every row carries org scope, stable IDs, timestamps, actor identity, and
+version/provenance metadata. Lifecycle states are defined in PRD §12; all
+transitions idempotent, authorized, and audit-logged.
+
+Legacy tables (`products`, `ad_variants`, `campaign_metrics`, …) exist until
+migration completes. Ad-specific fields (hookType, voice, pacing, videoUrl…)
+move into typed `variant.config` / artifact payloads — no parallel ad-only
+models (PRD §19.1).
 
 ---
 
 ## Contracts between frontend and backend
 
-These are the only Convex functions the frontend calls. If the frontend needs a new one, Steven tells Nori in chat — does NOT write it.
+These are the only Convex functions the frontend calls. If the frontend needs
+a new one, Steven tells Nori in chat — he does NOT write it. Legacy HookLoop
+functions (`products.*`, `experiments.*`, `metrics.liveMetrics`,
+`agents.reasoningByBatch`, `simulator.allocationsByBatch`) stay alive until
+Steven migrates each screen, then get deleted together.
 
 ### Queries (reactive — Steven uses `useQuery`)
 
-- `products.getById(productId)` → `Product | null`
-- `variants.listByBatch(batchId)` → `Variant[]`
-- `metrics.liveMetrics(batchId)` → `Metric[]` (streams as simulator runs)
-- `hypotheses.listByBatch(batchId)` → `Hypothesis[]`
-- `experiments.getStatus(batchId)` → `{ status, progress }`
+```ts
+orgs.listMine()
+programs.list({ projectId })
+programs.getById({ programId })
+cycles.listByProgram({ programId })
+cycles.getStatus({ cycleId })            // { state, phase, progress, error, budget }
+hypotheses.listByCycle({ cycleId })
+plans.getByCycle({ cycleId })
+executions.listByCycle({ cycleId })      // live sandbox status, logs, cost
+evaluations.listByCycle({ cycleId })
+findings.getByCycle({ cycleId })
+approvals.listPending({ orgId })
+audit.list({ orgId, filters })
+```
 
 ### Mutations (Steven uses `useMutation`)
 
-- `products.create(input)` → `productId`
-- `experiments.startBatch(productId)` → `batchId` (triggers full loop)
+```ts
+programs.create(input)                   // → programId
+hypotheses.update / lock / reject
+plans.approve({ planId })
+cycles.start({ programId })              // → cycleId (triggers full loop)
+cycles.control({ cycleId, action })      // pause | resume | cancel
+approvals.decide({ approvalId, decision })
+```
 
-### Actions (called by mutations — Steven doesn't call directly)
+### Actions (backend-internal — Steven never calls directly)
 
-- `agents.runStrategist`
-- `agents.runGenerator`
-- `agents.runAnalyst`
-- `simulator.runCampaign`
-
-### Video reels (Nori → Steven)
-
-`ad_variants` rows now carry `videoStatus` (`"pending"|"ready"|"failed"`),
-`videoUrl`, `videoError` — generated async after the Generator and streamed in
-via the existing `variants.listByBatch` (no new query). `TODO(steven)`:
-`VariantCard` renders `<video src={variant.videoUrl} autoPlay muted loop playsInline>`
-when `videoStatus === "ready"`, a "generating reel…" spinner on `"pending"`, and
-the current text-only card as fallback on `"failed"`/absent.
+Agent orchestration (hypothesis agent, treatment builder, evaluation agent),
+Daytona provisioning, Braintrust ingestion, Fireworks inference, CodeRabbit
+dispatch, webhook handlers.
 
 ---
 
@@ -161,38 +201,44 @@ the current text-only card as fallback on `"failed"`/absent.
 - **Components are functions**, not classes. Hooks at the top.
 - **No global state libraries.** Convex queries are the state.
 - **Styling**: Tailwind utility classes. No CSS files except `globals.css`.
-- **Loading states are required.** Every `useQuery` consumer handles `undefined` (Convex's "loading" sentinel).
-- **Don't catch errors silently.** Let them surface — we want to see what breaks.
+- **Loading states are required.** Every `useQuery` consumer handles
+  `undefined` (Convex's "loading" sentinel).
+- **Don't catch errors silently.** Failures must become visible, actionable
+  states — never a permanently-spinning experiment (PRD §15.1).
+- **Idempotency.** Orchestration steps, webhooks, and state transitions must
+  tolerate retries without duplicating work.
+- **Accessibility**: WCAG 2.2 AA; no status conveyed by color alone.
 
 ---
 
-## What we are NOT building (out of scope)
+## What we are NOT building (PRD §5)
 
-- Live Meta / TikTok API integration (architected for, never called)
-- Auth, billing, multi-tenancy
-- Brand safety classifier
-- Real video assembly (FFmpeg / editing / captions / music). Sora returns
-  finished raw clips; no manual assembly.
+- Training or fine-tuning foundation models
+- A notebook, data warehouse, or CI/CD replacement
+- Auto-deploy to production without an explicit org policy
+- In-house replacements for Daytona, Braintrust, Fireworks, ElevenLabs,
+  CopilotKit, CodeRabbit, or WorkOS
+- Additional model/sandbox providers beyond the canonical set
+- Causal-certainty claims when design or sample size can't support them
+- Presenting simulated campaign results as real-world evidence
 
 If you find yourself building any of the above, stop.
 
-> SCOPE UPDATE (2026-06-28): Per-variant **Sora video reels are now in scope** —
-> generated async as one step in the loop, directed by the prior batch's Analyst
-> feedback so the reels improve each loop. This deliberately reverses the earlier
-> "no video generation / use a placeholder" rule. The thesis still holds: the
-> self-improving loop is the point; video is one async step, never blocking it.
-
 ---
 
-## Demo-critical surfaces (polish budget goes here)
+## Delivery phases (PRD §20)
 
-1. **Agent reasoning panel** — streams Strategist + Analyst thoughts live
-2. **Creative-DNA heatmap** — hook_type × voice colored by CAC
-3. **Live bandit reallocation** — budget visibly shifts to winning variants
+- **Phase 0** — Rename + generic domain model; existing ad demo runs through
+  programs/cycles/variants/executions with zero regression. ← **current**
+- **Phase 1** — Closed-loop MVP: WorkOS auth, hypothesis workflow, designer,
+  Daytona execution, Fireworks, Braintrust, evidence report, next cycle.
+- **Phase 2** — Governed adoption: diffs, CodeRabbit, approval policies,
+  rollback metadata, audit log.
+- **Phase 3** — Multimodal: ElevenLabs voice, audience panels, templates.
 
-These three are what judges will remember. Everything else is plumbing.
+Task-level breakdowns live in NORI.md (backend) and STEVEN.md (frontend).
 
-<!-- convex-ai-start -->
+---
 
 This project uses [Convex](https://convex.dev) as its backend.
 
@@ -203,5 +249,3 @@ override what you may have learned about Convex from training data.
 
 Convex agent skills for common tasks can be installed by running
 `npx convex ai-files install`.
-
-<!-- convex-ai-end -->
