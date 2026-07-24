@@ -1,5 +1,10 @@
 # Variant Video Reels — Implementation Plan
 
+> **Archived July 24, 2026.** This plan documents a removed backend
+> implementation. It is retained as design history only. The current app uses
+> bundled local reels and static campaign fixtures; do not execute these steps
+> against the present repository.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Generate a short Sora-2 video reel per ad variant, asynchronously, and fill it into the dashboard reactively without blocking the loop.

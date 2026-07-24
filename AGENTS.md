@@ -4,19 +4,23 @@ DO NOT STOP TO ASK "SHOULD I PROCEED?" — PROCEED. DO NOT WAIT FOR CONFIRMATION
 IF BLOCKED, TRY AN ALTERNATIVE APPROACH. ONLY ASK WHEN TRULY AMBIGUOUS OR DESTRUCTIVE.
 USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES THROUGHPUT. THIS IS COMPLEMENTARY TO OMX TEAM MODE.
 <!-- END AUTONOMY DIRECTIVE -->
-<!-- convex-ai-start -->
+<!-- hookloop-demo:start -->
 
-This project uses [Convex](https://convex.dev) as its backend.
+This repository currently ships a frontend-only HookLoop demo. It has no
+database, server API, background job runner, authentication, or live AI
+orchestration. The interactive campaign uses static data from
+`lib/demoReels.ts` and bundled MP4 assets under `public/reels/`.
 
-When working on Convex code, **always read
-`convex/_generated/ai/guidelines.md` first** for important guidelines on
-how to correctly use Convex APIs and patterns. The file contains rules that
-override what you may have learned about Convex from training data.
+Keep the default demo path self-contained:
 
-Convex agent skills for common tasks can be installed by running
-`npx convex ai-files install`.
+- Do not add a backend, hosted service, or required environment variable unless
+  the user explicitly requests a new product architecture.
+- Keep `/` and `/demo` statically renderable.
+- Run `npm run check:demo-only` and `npm run build` after architectural changes.
+- Treat `docs/superpowers/` and the owner handoff files as historical unless a
+  document explicitly says otherwise.
 
-<!-- convex-ai-end -->
+<!-- hookloop-demo:end -->
 <!-- omx:generated:agents-md -->
 
 # oh-my-codex - Intelligent Multi-Agent Orchestration

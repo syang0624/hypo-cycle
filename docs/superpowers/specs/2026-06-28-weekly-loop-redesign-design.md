@@ -1,7 +1,11 @@
 # Weekly Loop Redesign — Sequential, Feedback-Driven Demo
 
+> **Archived July 24, 2026.** This specification records the design history of
+> the former live weekly loop. The current demo presents all three weeks from
+> static fixtures and does not execute the described backend workflow.
+
 **Date:** 2026-06-28
-**Status:** Approved (design)
+**Status:** Archived
 **Author:** Nori (with Claude)
 
 ## Problem

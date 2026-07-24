@@ -1,8 +1,12 @@
 # Design: Real video reels per ad variant
 
+> **Archived July 24, 2026.** This specification describes a removed live video
+> pipeline. The current demo plays bundled local MP4 assets and has no backend
+> generation or storage workflow.
+
 Date: 2026-06-27
 Owner: Nori (backend + AI)
-Status: Approved (pending spec review)
+Status: Archived
 
 ## Goal
 
