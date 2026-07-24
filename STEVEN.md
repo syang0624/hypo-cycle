@@ -83,9 +83,30 @@ good/bad/warn/info`); legacy `card`/`bento` aliases kept for stragglers.
 
 Shared primitives in `components/ui.tsx`: `Logo`, `Panel` (tick + mono
 uppercase header), `Chip` (status dot + mono label), `SimBadge`, `Skeleton`
-(shimmer). Launch page is a fake provisioning console; dashboard has a sticky
+(shimmer). Launch page is a provisioning console; dashboard has a sticky
 command bar. Use these primitives for all Phase 1 screens — don't invent new
 card styles per screen.
+
+## UX flows (updated 2026-07-24)
+
+- **Setup is a 3-step wizard** (Product → Budget → Goal & launch) with
+  per-step validation, completed steps clickable to go back, a review strip
+  before launch, and inline submit-error + retry. A one-click **"Launch
+  demo →"** card at the top prefills the sample product and launches — the
+  judge path is one click from the form.
+- **Launch console reads real status**: the step checklist paces on timers
+  but `experiments.getStatus` can only push it forward (revisit mid-cycle
+  jumps ahead); a failed start renders the error in-console with "Start
+  over"; there's an escape hatch link to the dashboard.
+- **Failed weeks are recoverable**: the dashboard error banner has "Retry
+  week" — week 1 re-runs `startBatch`, later weeks re-run `startNextBatch`
+  from the last good week so evidence is preserved.
+- **Campaign continuity**: the dashboard writes `hypocycle:lastCycle` to
+  localStorage; the landing page shows "Resume last campaign" when present.
+- **Dead cycle ids** render a 404 panel with a path back, instead of an
+  infinite skeleton. "Run next week" failures surface in a dismissible
+  banner. Progress bars carry `role="progressbar"`; status area is
+  `aria-live`.
 
 ## Phase 1 — The ten MVP screens (PRD §17)
 

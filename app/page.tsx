@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo, Chip } from "@/components/ui";
+import ResumeCampaign from "@/components/ResumeCampaign";
 
 const CYCLE_STEPS = [
   "observe",
@@ -56,13 +57,14 @@ export default function Home() {
             evidence supports — cycle after cycle.
           </p>
 
-          <div className="mt-10 flex items-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
               href="/programs/new"
               className="rounded-lg bg-primary px-6 py-3 text-[14px] font-semibold text-white hover:bg-primary/90 shadow-glow transition-all"
             >
               Start an experiment program →
             </Link>
+            <ResumeCampaign />
             <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
               First template: ad-creative optimization
             </span>
