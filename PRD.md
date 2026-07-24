@@ -7,6 +7,12 @@
 **Previous product:** HookLoop  
 **Owner:** Product / Engineering
 
+> **Implementation note — July 24, 2026:** This document is a future product
+> vision. The current repository is a frontend-only demo using static campaign
+> fixtures and bundled videos. Sandbox execution, the control plane,
+> integrations, authentication, persistence, and live agent orchestration
+> described below are not implemented.
+
 ## 1. Executive Summary
 
 HypoCycle is an autonomous experimentation platform that gives AI agents a scientific method.
@@ -21,7 +27,7 @@ Instead of asking an agent for a one-shot answer, a user gives HypoCycle an obje
 6. Adopt, reject, or revise the proposed change.
 7. Use the evidence to plan the next cycle.
 
-Every experiment runs in an isolated Daytona sandbox. Braintrust records traces, datasets, scores, and evaluation results. Fireworks AI provides low-latency parallel inference and simulated audience responses. CopilotKit provides the human control surface. CodeRabbit reviews agent-generated code and policy changes before adoption. WorkOS provides enterprise authentication, organizations, roles, and approval controls.
+Every experiment runs in an isolated Daytona sandbox. Braintrust records traces, datasets, scores, and evaluation results. Fireworks AI provides low-latency parallel inference and simulated audience responses. CopilotKit provides the human control surface. CodeRabbit reviews agent-generated code and policy changes before adoption.
 
 The first release will generalize HookLoop’s existing marketing experiment loop into a reusable system for testing prompts, agents, code, policies, workflows, and generated content. The existing ad-creative use case remains the first end-to-end template and demo.
 
@@ -76,7 +82,7 @@ The MVP is successful when a user can:
 - Execute all variants in isolated Daytona sandboxes from a pinned environment definition.
 - View live Braintrust-backed traces, scores, cost, latency, logs, and artifacts.
 - Compare variants and receive an evidence-backed recommendation.
-- Require a WorkOS-authorized approver before a code or policy change is adopted.
+- Require an authorized approver before a code or policy change is adopted.
 - Trigger a CodeRabbit review for an adoptable code or policy diff.
 - Start a follow-up cycle whose hypotheses explicitly reference prior evidence.
 - Re-run the experiment and obtain the same configuration, inputs, and environment metadata.
@@ -95,7 +101,7 @@ The MVP is successful when a user can:
 - Automatically deploying changes to production without an explicit organization policy.
 - Supporting arbitrary physical-world experiments.
 - Guaranteeing causal conclusions when the experiment design or sample size is insufficient.
-- Replacing Braintrust, Daytona, Fireworks AI, CodeRabbit, CopilotKit, or WorkOS with in-house equivalents.
+- Replacing Braintrust, Daytona, Fireworks AI, CodeRabbit, or CopilotKit with in-house equivalents.
 - Supporting every model provider or sandbox provider in the first release.
 - Fully autonomous multi-objective optimization across unrelated projects.
 
@@ -239,7 +245,7 @@ If the winning treatment produces code or policy changes:
 1. HypoCycle creates a reviewable diff.
 2. CodeRabbit reviews the diff.
 3. HypoCycle attaches review findings to the experiment.
-4. WorkOS resolves the required approval policy and eligible approvers.
+4. HypoCycle resolves the required approval policy and eligible approvers.
 5. The approver can approve, reject, request changes, or require a rerun.
 6. Adoption occurs only after all required gates pass.
 
@@ -265,7 +271,7 @@ Priority definitions:
 
 ### 10.1 Organizations, Identity, and Access
 
-- **P0:** Authenticate users with WorkOS.
+- **P0:** Authenticate users.
 - **P0:** Support organizations and organization switching.
 - **P0:** Support Admin, Experiment Owner, Operator, Approver, and Viewer roles.
 - **P0:** Enforce authorization server-side for every project, run, artifact, approval, and secret operation.
@@ -360,7 +366,7 @@ Priority definitions:
 
 - **P0:** Compute a result of supported, refuted, inconclusive, or invalid.
 - **P0:** Prevent adoption when a hard guardrail fails.
-- **P0:** Route decisions through WorkOS-backed approval policies.
+- **P0:** Route decisions through role-based approval policies.
 - **P0:** Record who or what made each decision and the evidence available at that time.
 - **P0:** Support rollback metadata for every adopted change.
 - **P1:** Automatically adopt low-risk changes only when an organization policy explicitly permits it.
@@ -377,7 +383,7 @@ Priority definitions:
 
 | Entity | Purpose |
 | --- | --- |
-| Organization | WorkOS-backed tenant and security boundary |
+| Organization | Tenant and security boundary |
 | Membership | User, organization, role, and approval eligibility |
 | Project | Collection of related programs, resources, secrets, and policies |
 | Experiment Program | Long-running objective optimized over multiple cycles |
@@ -392,7 +398,7 @@ Priority definitions:
 | Evaluation | Versioned evaluator result for an execution or variant |
 | Finding | Evidence-backed conclusion with uncertainty and scope |
 | Review | CodeRabbit or human feedback on a proposed change |
-| Approval | WorkOS-authorized decision at a policy gate |
+| Approval | Authorized decision at a policy gate |
 | Adoption | Applied change with provenance and rollback reference |
 | Audit Event | Immutable security- or lifecycle-relevant event |
 
@@ -438,7 +444,10 @@ The HypoCycle application owns:
 - Approval routing
 - Experiment memory
 
-The current Next.js and Convex application can remain the initial control plane, with the existing batch loop generalized into programs, cycles, plans, variants, executions, and evaluations.
+The current Next.js repository is only a presentation-layer prototype and must
+not be treated as a control plane. A future implementation may reuse its visual
+language and experiment narrative, but persistence, orchestration, policy,
+authorization, and auditability require a separately reviewed architecture.
 
 ### 13.2 Execution Plane
 
@@ -457,7 +466,6 @@ Provider adapters must normalize request status, usage, cost, provenance, errors
 ### 13.5 Review and Governance Plane
 
 - CodeRabbit: code and policy diff review.
-- WorkOS: identity, organizations, roles, and approver eligibility.
 - CopilotKit: conversational interaction and human-in-the-loop actions.
 
 CopilotKit is a user interaction layer, not an authorization boundary. All actions must be revalidated by the HypoCycle backend.
@@ -546,7 +554,7 @@ A verified improvement cycle reaches a valid evidence decision and either adopts
 
 ## 17. MVP Screens
 
-1. **Organization / Project Switcher** — WorkOS-backed tenant context.
+1. **Organization / Project Switcher** — Active tenant context.
 2. **Program Dashboard** — Objective, current baseline, progress over cycles, budget, and durable findings.
 3. **New Program Wizard** — Objective, data, metrics, guardrails, resources, and approvals.
 4. **Hypothesis Board** — Ranked hypotheses with evidence, predicted outcomes, risks, and edit controls.
@@ -590,7 +598,7 @@ The UI must clearly distinguish simulated campaign metrics from live advertising
 - Agent-generated treatment diff
 - Tests and evaluators in Daytona
 - CodeRabbit review
-- WorkOS approval before adoption
+- Approval before adoption
 
 ## 19. Migration from HookLoop
 
@@ -634,7 +642,7 @@ HypoCycle should evolve the current product rather than discard its working loop
 
 ### Phase 1: Closed-Loop Experiment MVP
 
-- WorkOS authentication and organization boundaries
+- Authentication and organization boundaries
 - Structured objective and hypothesis workflow
 - Experiment designer with control/treatments
 - Daytona execution
@@ -649,7 +657,7 @@ HypoCycle should evolve the current product rather than discard its working loop
 
 - Code and policy artifact diffs
 - CodeRabbit review
-- Role-based WorkOS approval policies
+- Role-based approval policies
 - Post-review reruns
 - Adoption and rollback metadata
 - Complete audit log
@@ -706,7 +714,7 @@ The MVP is ready when a new organization can complete this scenario:
 7. HypoCycle produces a comparison that includes the primary metric, all guardrails, uncertainty, failures, and provenance.
 8. The selected treatment creates a reviewable change.
 9. CodeRabbit reviews the change and any blocking findings are resolved.
-10. WorkOS policy prevents adoption until an eligible Approver approves it.
+10. The approval policy prevents adoption until an eligible Approver approves it.
 11. The adopted change records the experiment, evidence, review, approver, and rollback reference.
 12. HypoCycle proposes a follow-up hypothesis that cites the completed cycle.
 13. An auditor can reconstruct the full lifecycle without accessing hidden chain-of-thought or unredacted secrets.

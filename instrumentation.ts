@@ -1,9 +1,12 @@
 import { initLogger } from "braintrust";
 
 export function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs" || process.env.NEXT_RUNTIME === "edge") {
+  if (
+    process.env.BRAINTRUST_API_KEY &&
+    (process.env.NEXT_RUNTIME === "nodejs" || process.env.NEXT_RUNTIME === "edge")
+  ) {
     initLogger({
-      projectName: "My Project",
+      projectName: process.env.BRAINTRUST_PROJECT_NAME || "HypoCycle Demo",
     });
   }
 }

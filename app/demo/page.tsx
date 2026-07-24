@@ -10,6 +10,9 @@ export default function DemoPage() {
         <Link href="/" className="ml-3 underline underline-offset-2">
           Back home
         </Link>
+        <Link href="/sandbox" className="ml-3 underline underline-offset-2">
+          Run live sandbox
+        </Link>
       </div>
       <DemoDashboard weeks={DEMO_CAMPAIGN} overall={DEMO_OVERALL} />
     </>

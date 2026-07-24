@@ -4,8 +4,8 @@
  * When videos exist at these paths in public/reels/, the demo uses them.
  * When they don't exist, the VariantCard falls back to ReelPreview (styled poster).
  *
- * To populate: either drop 9:16 MP4s manually, or run the one-time
- * generation script: `npx ts-node scripts/generate-demo-reels.ts`
+ * To populate: either drop 9:16 MP4s manually, or run the optional one-time
+ * generation script: `node scripts/generate-demo-reels.mjs`
  *
  * Each "week" has its own set of reels — week 2 and 3 are NEW creative
  * generated from revised hypotheses, not survivors from week 1.

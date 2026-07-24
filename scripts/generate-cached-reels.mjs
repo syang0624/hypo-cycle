@@ -9,17 +9,22 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import process from "process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REELS_DIR = path.join(__dirname, "..", "public", "reels");
 
-// Read .env.local
+// Prefer the shell environment, then fall back to the optional local env file.
 const envPath = path.join(__dirname, "..", ".env.local");
-const envContent = fs.readFileSync(envPath, "utf8");
-const apiKey = envContent.match(/OPENAI_API_KEY=(.+)/)?.[1]?.trim();
+const envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, "utf8") : "";
+const apiKey =
+  process.env.OPENAI_API_KEY ||
+  envContent.match(/^\s*OPENAI_API_KEY\s*=\s*(.+?)\s*$/m)?.[1]?.replace(/^['"]|['"]$/g, "");
 if (!apiKey) {
-  console.error("No OPENAI_API_KEY found in .env.local");
+  console.error(
+    "OPENAI_API_KEY is required to generate reels. Set it in the shell or in .env.local.",
+  );
   process.exit(1);
 }
 
@@ -44,9 +49,12 @@ fs.mkdirSync(REELS_DIR, { recursive: true });
 
 async function generateReel(reel) {
   const outPath = path.join(REELS_DIR, reel.file);
-  if (fs.existsSync(outPath)) {
+  if (fs.existsSync(outPath) && fs.statSync(outPath).size > 0) {
     console.log(`  ✓ ${reel.file} already exists, skipping`);
-    return;
+    return true;
+  }
+  if (fs.existsSync(outPath)) {
+    console.log(`  ↻ ${reel.file} is empty, regenerating`);
   }
 
   console.log(`  ⏳ Starting ${reel.file}...`);
@@ -70,17 +78,20 @@ async function generateReel(reel) {
         const buffer = Buffer.from(await res.arrayBuffer());
         fs.writeFileSync(outPath, buffer);
         console.log(`  ✓ ${reel.file} saved (${(buffer.length / 1024 / 1024).toFixed(1)} MB)`);
-        return;
+        return true;
       }
       if (status.status === "failed") {
         console.error(`  ✗ ${reel.file} failed: ${status.error?.message || "unknown"}`);
-        return;
+        return false;
       }
       process.stdout.write(".");
     }
     console.error(`  ✗ ${reel.file} timed out after 5 minutes`);
+    return false;
   } catch (err) {
-    console.error(`  ✗ ${reel.file} error:`, err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`  ✗ ${reel.file} error:`, message);
+    return false;
   }
 }
 
@@ -88,12 +99,19 @@ async function main() {
   console.log("Generating 9 evolving cached reels for Coca-Cola campaign...\n");
   console.log(`Output: ${REELS_DIR}\n`);
 
-  for (const reel of REELS) {
-    await generateReel(reel);
+  const results = [];
+  for (const reel of REELS) results.push(await generateReel(reel));
+
+  const failures = results.filter((result) => !result).length;
+  if (failures > 0) {
+    throw new Error(`${failures} reel${failures === 1 ? "" : "s"} failed to generate`);
   }
 
-  console.log("\nDone! Check public/reels/ for the MP4 files.");
-  console.log("Existing files were skipped. Delete them to regenerate.");
+  console.log("\nDone! All nine MP4 files are present in public/reels/.");
+  console.log("Existing files were skipped. Delete a file to regenerate that slot.");
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});

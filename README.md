@@ -1,51 +1,99 @@
-# HypoCycle
+# HypoCycle local demo
 
-An autonomous experimentation platform that gives AI agents a scientific
-method. HypoCycle turns an objective into falsifiable hypotheses, runs
-controlled variants against a baseline, and adopts only what the evidence
-supports — cycle after cycle. See `PRD.md` for the full product vision and
-`CLAUDE.md` for the working architecture contract.
+This repository is a self-contained, frontend-only demonstration of an
+evidence-driven experimentation loop. It uses bundled campaign fixtures and
+local video assets.
 
-The repo currently ships **two surfaces**:
+## Demo video
 
-1. **The live app** — the HookLoop-era ad-experimentation loop being migrated
-   to the HypoCycle domain model. Convex backend, three agents (hypothesis /
-   treatment / evaluation), seeded campaign simulator, Thompson-sampling
-   budget allocation, and a real-time dashboard. Start at `/programs/new`.
-2. **The self-contained demo** — a frontend-only walkthrough of a fixed
-   Coca-Cola three-week campaign with bundled reels; no backend or API keys
-   required. Start at `/demo` (data in `lib/demoReels.ts`, videos in
-   `public/reels/`).
+[Watch the HypoCycle demo on YouTube](https://youtu.be/dGonTvEqKDE)
 
-Campaign metrics in both surfaces are **simulated** and labeled as such —
-never live ad-platform results.
+## Requirements
 
-## Run locally
+- Node.js 20 or newer
+- npm
+
+No backend, database, account, or API key is required.
+
+## Run in development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open:
 
-- **Explore the demo** needs nothing else — it is fully static.
-- **Start an experiment program** (the live loop) needs the Convex backend
-  running (`npx convex dev`) and an `OPENAI_API_KEY` in `.env.local`.
+- [http://localhost:3000](http://localhost:3000) — landing page
+- [http://localhost:3000/demo](http://localhost:3000/demo) — campaign demo
+- [http://localhost:3000/sandbox](http://localhost:3000/sandbox) — live sponsor-tool workflow
+
+Stop the development server with `Ctrl+C`.
+
+## Run the production build locally
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+The production server also runs at
+[http://localhost:3000](http://localhost:3000) by default.
+
+## Current scope
+
+- Static three-week Coca-Cola campaign
+- Three selectable weeks and nine bundled reels
+- Sample hypotheses, metrics, and analysis
+- No backend, database, login, or required API key
+- Optional, separately routed live sandbox execution
+
+Campaign metrics are presentation fixtures, not live ad-platform results.
+
+## Environment
+
+The demo works with every environment variable blank. Do not create an
+environment file for normal local use.
+
+For optional tooling only:
+
+```bash
+cp .env.example .env.local
+```
+
+- `DAYTONA_API_KEY` creates the ephemeral isolated runtime used by `/sandbox`.
+- `FIREWORKS_API_KEY` generates live experiment candidates.
+- `BRAINTRUST_API_KEY` records and flushes the live execution trace.
+- `BRAINTRUST_PROJECT_NAME` overrides the default telemetry project name.
+- `FIREWORKS_MODEL` overrides the default inference model.
+- `OPENAI_API_KEY` is used only by the optional local reel-generation script.
+
+The static landing and demo routes do not consume provider credentials. The
+server-only `/api/sandbox/run` endpoint is the explicit live integration path.
+
+## Regenerate the bundled reels (optional)
+
+The repository already includes all nine MP4 files, so this is not needed to
+run the demo. Generating replacements can consume OpenAI API credits.
+
+```bash
+OPENAI_API_KEY=your_key_here node scripts/generate-demo-reels.mjs
+```
+
+Existing nonempty reel files are skipped. Delete only the specific reel files
+you intentionally want to regenerate.
 
 ## Verify
 
 ```bash
+npm run check:demo-only
+npx tsc --noEmit
 npm run build
 ```
 
-`scripts/check-demo-only.mjs` asserts a demo-only repo layout; it applies to
-demo-only builds, not to this merged main branch.
+`check:demo-only` confirms the application has no backend dependency and that
+the fixture references match all nine bundled, nonempty reel files.
 
-## Working docs
-
-- `CLAUDE.md` — architecture, rules of engagement, file ownership
-- `STEVEN.md` / `NORI.md` — per-owner migration work plans
-- `PRD.md` — HypoCycle product requirements
-- `PROGRESS-REPORT.md`, `SUBMISSION.md` — demo narrative and hackathon
-  submission materials
+See `CLAUDE.md` for the active architecture and `PROGRESS-REPORT.md` for current
+verification evidence.

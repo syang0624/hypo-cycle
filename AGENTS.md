@@ -4,19 +4,23 @@ DO NOT STOP TO ASK "SHOULD I PROCEED?" — PROCEED. DO NOT WAIT FOR CONFIRMATION
 IF BLOCKED, TRY AN ALTERNATIVE APPROACH. ONLY ASK WHEN TRULY AMBIGUOUS OR DESTRUCTIVE.
 USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES THROUGHPUT. THIS IS COMPLEMENTARY TO OMX TEAM MODE.
 <!-- END AUTONOMY DIRECTIVE -->
-<!-- convex-ai-start -->
+<!-- hypocycle-demo:start -->
 
-This project uses [Convex](https://convex.dev) as its backend.
+This repository ships a frontend-only HypoCycle/HookLoop demo plus an optional,
+separately routed sponsor-tool sandbox. It has no application database,
+background job runner, or authentication. Campaign data lives in
+`lib/demoReels.ts`, video assets live under `public/reels/`, and the live
+server-only workflow lives under `/sandbox` and `/api/sandbox/run`.
 
-When working on Convex code, **always read
-`convex/_generated/ai/guidelines.md` first** for important guidelines on
-how to correctly use Convex APIs and patterns. The file contains rules that
-override what you may have learned about Convex from training data.
+- Keep `/` and `/demo` statically renderable.
+- Keep sponsor credentials server-only and make `/sandbox` explicitly
+  user-triggered; the demo must continue to work with every key blank.
+- Do not introduce a required backend or environment variable without an
+  explicit architecture decision from the user.
+- Run `npm run check:demo-only` and `npm run build` after architectural changes.
+- Treat `PRD.md` as a future product vision, not the current implementation.
 
-Convex agent skills for common tasks can be installed by running
-`npx convex ai-files install`.
-
-<!-- convex-ai-end -->
+<!-- hypocycle-demo:end -->
 <!-- omx:generated:agents-md -->
 
 # oh-my-codex - Intelligent Multi-Agent Orchestration

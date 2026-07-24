@@ -1,34 +1,37 @@
-import { Logo, Chip } from "@/components/ui";
+import Link from "next/link";
 import ProductInputForm from "@/components/ProductInputForm";
+import { Chip, Logo } from "@/components/ui";
 
-// Seed of the New Program Wizard (PRD §17.3). Still collects the ad-template
-// inputs against the legacy backend; objective/guardrail/approval fields land
-// with Phase 1.
 export default function NewProgramPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-grid">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <nav className="mb-10 flex items-center justify-between">
           <Logo />
-          <Chip tone="primary">New program</Chip>
-        </div>
+          <div className="flex items-center gap-3">
+            <Chip tone="primary">New program</Chip>
+            <Link
+              href="/"
+              className="font-mono text-[11px] text-muted transition-colors hover:text-foreground"
+            >
+              Back home
+            </Link>
+          </div>
+        </nav>
 
-        <div className="border border-line rounded-bento bg-panel p-8 md:p-10">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted mb-3">
+        <main className="rounded-bento border border-line bg-panel p-6 sm:p-10">
+          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
             Template · ad-creative optimization
           </p>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-3">
+          <h1 className="font-display text-3xl font-bold text-foreground">
             Set up your experiment program
           </h1>
-          <p className="text-muted text-[14px] leading-relaxed mb-10 max-w-lg">
-            Tell HypoCycle about your product and budget. It will generate
-            falsifiable hypotheses, test ad variants in a{" "}
-            <span className="text-warn">simulated</span> campaign, and show you
-            the evidence for what works.
+          <p className="mb-10 mt-3 max-w-lg text-[14px] leading-relaxed text-muted">
+            Define the product, budget, and objective. HypoCycle will open a
+            fixture-backed campaign so the complete interaction works locally.
           </p>
           <ProductInputForm />
-        </div>
+        </main>
       </div>
     </div>
   );

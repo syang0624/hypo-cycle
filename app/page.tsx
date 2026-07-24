@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo, Chip } from "@/components/ui";
-import ResumeCampaign from "@/components/ResumeCampaign";
 
 const CYCLE_STEPS = [
   "observe",
@@ -34,12 +33,26 @@ export default function Home() {
         {/* Nav */}
         <nav className="flex items-center justify-between">
           <Logo />
-          <Link
-            href="/programs/new"
-            className="rounded-lg border border-line bg-panel px-4 py-2 text-[13px] font-semibold text-foreground hover:border-primary/50 transition-colors"
-          >
-            New program
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/programs/new"
+              className="rounded-lg border border-primary/40 bg-primary/5 px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/10"
+            >
+              New program
+            </Link>
+            <Link
+              href="/demo"
+              className="rounded-lg border border-line bg-panel px-4 py-2 text-[13px] font-semibold text-foreground hover:border-primary/50 transition-colors"
+            >
+              Explore demo
+            </Link>
+            <Link
+              href="/sandbox"
+              className="rounded-lg border border-good/40 bg-good/5 px-4 py-2 text-[13px] font-semibold text-good hover:bg-good/10 transition-colors"
+            >
+              Live sandbox
+            </Link>
+          </div>
         </nav>
 
         {/* Hero */}
@@ -60,19 +73,24 @@ export default function Home() {
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link
               href="/programs/new"
-              className="rounded-lg bg-primary px-6 py-3 text-[14px] font-semibold text-white hover:bg-primary/90 shadow-glow transition-all"
+              className="rounded-lg bg-primary px-6 py-3 text-[14px] font-semibold text-white shadow-glow transition-all hover:bg-primary/90"
             >
-              Start an experiment program →
+              Start an experiment →
             </Link>
             <Link
               href="/demo"
-              className="rounded-lg border border-line bg-panel px-6 py-3 text-[14px] font-semibold text-foreground hover:border-primary/50 transition-colors"
+              className="rounded-lg border border-line bg-panel px-6 py-3 text-[14px] font-semibold text-foreground transition-colors hover:border-primary/50"
             >
               Explore the demo
             </Link>
-            <ResumeCampaign />
+            <Link
+              href="/sandbox"
+              className="rounded-lg border border-good/40 bg-good/5 px-6 py-3 text-[14px] font-semibold text-good hover:bg-good/10 transition-colors"
+            >
+              Run live sandbox →
+            </Link>
             <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
-              First template: ad-creative optimization
+              Demo stays static · live tools are separate
             </span>
           </div>
 

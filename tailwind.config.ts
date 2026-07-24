@@ -32,9 +32,9 @@ const config: Config = {
         glow: "0 0 24px rgba(124, 108, 255, 0.25)",
       },
       fontFamily: {
-        display: ["var(--font-grotesk)", "system-ui", "sans-serif"],
-        body: ["var(--font-inter)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        display: ["ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "monospace"],
       },
     },
   },
